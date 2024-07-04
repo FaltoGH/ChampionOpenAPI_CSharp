@@ -84,6 +84,7 @@ namespace ChampionOpenAPI_CSharp
         {
             InitializeComponent();
             this.axChampionCommAgent1 = axChampionCommAgent1;
+            DynamicInitializeComponent();
             OnVersionCheckSuccess();
             OnLoginSuccess(strID);
         }
@@ -5140,6 +5141,13 @@ namespace ChampionOpenAPI_CSharp
         private void P(object x)
         {
             Console.WriteLine("[{0}] {1}", DateTime.Now.ToString("HH:mm:ss.fff"), x);
+        }
+
+        private void DynamicInitializeComponent()
+        {
+            this.axChampionCommAgent1.OnGetTranData += new AxChampionCommAgentLib._DChampionCommAgentEvents_OnGetTranDataEventHandler(this.axChampionCommAgent1_OnGetTranData);
+            this.axChampionCommAgent1.OnGetFidData += new AxChampionCommAgentLib._DChampionCommAgentEvents_OnGetFidDataEventHandler(this.axChampionCommAgent1_OnGetFidData);
+            this.axChampionCommAgent1.OnGetRealData += new AxChampionCommAgentLib._DChampionCommAgentEvents_OnGetRealDataEventHandler(this.axChampionCommAgent1_OnGetRealData);
         }
 
     } // End [public partial class Form1]

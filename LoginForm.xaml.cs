@@ -85,7 +85,7 @@ namespace ChampionOpenAPI_CSharp
 
                 System.Windows.MessageBox.Show("로그인 성공");
 
-                new Form1(axChampionCommAgent1, strID).Show();
+                new Form1(axChampionCommAgent1, strID).ShowDialog();
             }
             else
             {
