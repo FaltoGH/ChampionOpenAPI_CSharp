@@ -16,7 +16,8 @@ namespace ChampionOpenAPI_CSharp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            System.Windows.Application application = new System.Windows.Application();
+            application.Run(new MainWindow());
         }
     }
 }
