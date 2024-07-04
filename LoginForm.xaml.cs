@@ -45,7 +45,7 @@ namespace ChampionOpenAPI_CSharp
                 return;
             }
 
-            if (strCretPwd.Length == 0)
+            if (strCretPwd.Length == 0 && !CB_PO.IsChecked.GetValueOrDefault())
             {
                 MessageBoxResult MsgRtn = System.Windows.MessageBox.Show(
                     "시세전용으로 로그인 하시겠습니까?\n인증서 비밀번호를 입력하시려면 취소를 누르십시오.",
@@ -54,6 +54,7 @@ namespace ChampionOpenAPI_CSharp
                 {
                     return;
                 }
+                CB_PO.IsChecked = true;
             }
 
 

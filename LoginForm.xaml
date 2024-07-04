@@ -9,6 +9,7 @@
     
     <UserControl.Resources>
         <Style TargetType="{x:Type PasswordBox}">
+            <!-- https://prabu-guru.blogspot.com/2010/06/how-to-add-watermark-text-to-textbox.html -->
             <Setter Property="local:WaterMarkTextHelper.IsMonitoring" Value="True"/>
             <Setter Property="local:WaterMarkTextHelper.WatermarkText" Value="Password" />
             <Setter Property="Template">
@@ -142,6 +143,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <local:Not x:Key="not"/>
     </UserControl.Resources>
     
     <Grid Margin="9">
@@ -164,6 +166,7 @@
                FontWeight="Bold">유진투자증권 고객 ID 로그인</Label>
         
         <TextBox Grid.Row="1" VerticalContentAlignment="Center" Margin="9" x:Name="TB_ID">
+            <!-- https://stackoverflow.com/a/7433840/14367566 -->
             <TextBox.Style>
                 <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
                     <Style.Resources>
@@ -191,7 +194,8 @@
         <PasswordBox Grid.Row="2" VerticalContentAlignment="Center" Margin="9" x:Name="TB_Pwd"
                      local:WaterMarkTextHelper.WatermarkText="ID비밀번호(영문, 숫자 혼합의 6~8자리)"/>
         <PasswordBox Grid.Row="3" VerticalContentAlignment="Center" Margin="9" x:Name="TB_CretPwd"
-                      local:WaterMarkTextHelper.WatermarkText="인증서 비밀번호"/>
+                      local:WaterMarkTextHelper.WatermarkText="인증서 비밀번호"
+                     IsEnabled="{Binding ElementName=CB_PO, Path=IsChecked, Mode=OneWay, Converter={StaticResource not}}"/>
 
 
 
@@ -201,7 +205,8 @@
         <StackPanel Grid.ColumnSpan="2" Grid.Row="4" Orientation="Horizontal"
                     VerticalAlignment="Center">
             <CheckBox VerticalAlignment="Center">고객ID 저장</CheckBox>
-            <CheckBox VerticalAlignment="Center" Margin="9 0 0 0">시세전용</CheckBox>
+            <CheckBox VerticalAlignment="Center" Margin="9 0 0 0"
+                      x:Name="CB_PO">시세전용</CheckBox>
             <Image Source="ico_quest.png" Stretch="None" VerticalAlignment="Center"/>
             <CheckBox VerticalAlignment="Center" Margin="9 0 0 0"
                       >로그인 상태 유지</CheckBox>

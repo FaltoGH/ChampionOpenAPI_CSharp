@@ -37,6 +37,8 @@ namespace ChampionOpenAPI_CSharp
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
+
+            // https://stackoverflow.com/a/1926796/14367566
             HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
             source.AddHook(WndProc);
         }
@@ -77,7 +79,9 @@ namespace ChampionOpenAPI_CSharp
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.FileName = file;
 
+            // https://stackoverflow.com/questions/1556182/finding-the-handle-to-a-wpf-window
             string arguments = "/" + new WindowInteropHelper(this).Handle;
+
             startInfo.Arguments = arguments;
 
             startInfo.UseShellExecute = true;
