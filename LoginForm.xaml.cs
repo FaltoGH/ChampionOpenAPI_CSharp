@@ -20,7 +20,11 @@ namespace ChampionOpenAPI_CSharp
     public partial class LoginForm : System.Windows.Controls.UserControl
     {
         public AxChampionCommAgentLib.AxChampionCommAgent axChampionCommAgent1;
+#pragma warning disable IDE0052 // Remove unread private members
+#pragma warning disable CS0414 // The field 'LoginForm.g_bLoginYN' is assigned but its value is never used
         private bool g_bLoginYN;
+#pragma warning restore CS0414 // The field 'LoginForm.g_bLoginYN' is assigned but its value is never used
+#pragma warning restore IDE0052 // Remove unread private members
         private string g_sMsg;
         private string g_sLoginId;
         private int g_nVersionCheck;
@@ -116,6 +120,11 @@ namespace ChampionOpenAPI_CSharp
             //this.axChampionCommAgent1.OnGetFidData += new AxChampionCommAgentLib._DChampionCommAgentEvents_OnGetFidDataEventHandler(this.axChampionCommAgent1_OnGetFidData);
             //this.axChampionCommAgent1.OnGetRealData += new AxChampionCommAgentLib._DChampionCommAgentEvents_OnGetRealDataEventHandler(this.axChampionCommAgent1_OnGetRealData);
             ((System.ComponentModel.ISupportInitialize)(this.axChampionCommAgent1)).EndInit();
+        }
+
+        private void QUEST_PO_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.MessageBox.Show("주문 및 은행이체, 계좌간대체, 청약서비스 등 인증서가 반드시 필요한 거래는 이용하실 수 없습니다.", "시세전용으로 로그인");
         }
     }
 }

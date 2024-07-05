@@ -207,7 +207,15 @@
             <CheckBox VerticalAlignment="Center">고객ID 저장</CheckBox>
             <CheckBox VerticalAlignment="Center" Margin="9 0 0 0"
                       x:Name="CB_PO">시세전용</CheckBox>
-            <Image Source="ico_quest.png" Stretch="None" VerticalAlignment="Center"/>
+            
+            <Button Cursor="Hand" Click="QUEST_PO_Click">
+                <Button.Template>
+                    <ControlTemplate>
+                        <Image Source="ico_quest.png" Stretch="None" VerticalAlignment="Center"/>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            
             <CheckBox VerticalAlignment="Center" Margin="9 0 0 0"
                       >로그인 상태 유지</CheckBox>
             <Image Source="ico_quest.png" Stretch="None" VerticalAlignment="Center"/>

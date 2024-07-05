@@ -28,6 +28,7 @@ namespace ChampionOpenAPI_CSharp
         private int g_nVersionCheck;
         private string g_sOpenAPI_PATH;
         private LoginForm loginForm;
+        private bool versionCheckSuccessFlag;
 
         public MainWindow()
         {
@@ -97,6 +98,18 @@ namespace ChampionOpenAPI_CSharp
             this.button.IsEnabled = false;
         }
 
+        private void OnVersionCheckSuccess()
+        {
+            if (!versionCheckSuccessFlag)
+            {
+                // you only execute once
+                versionCheckSuccessFlag = true;
+                this.grid.Children.Remove(this.button);
+                loginForm = new LoginForm(g_nVersionCheck);
+                this.grid.Children.Add(loginForm);
+            }
+        }
+
         // 윈도우 메세지 수신(버전처리)
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
@@ -112,10 +125,7 @@ namespace ChampionOpenAPI_CSharp
 
                     if (g_nVersionCheck > 0)
                     {
-                        // version check success
-                        this.grid.Children.Remove(this.button);
-                        loginForm = new LoginForm(g_nVersionCheck);
-                        this.grid.Children.Add(loginForm);
+                        OnVersionCheckSuccess();
                     }
                 }
 
@@ -133,5 +143,13 @@ namespace ChampionOpenAPI_CSharp
             this.loginForm?.axChampionCommAgent1?.Dispose();
         }
 
+        protected override void OnKeyDown(System.Windows.Input.KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            if(e.Key == Key.Escape)
+            {
+                OnVersionCheckSuccess();
+            }
+        }
     }
 }
