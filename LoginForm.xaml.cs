@@ -1,6 +1,8 @@
 ﻿using AxChampionCommAgentLib;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
@@ -28,12 +30,51 @@ namespace ChampionOpenAPI_CSharp
         private string g_sMsg;
         private string g_sLoginId;
         private int g_nVersionCheck;
+        private const string USERID = "eugenefn_userid";
 
         public LoginForm(int g_nVersionCheck)
         {
             InitializeComponent();
-            DynamicInitializeComponent();
+            InitComp();
             this.g_nVersionCheck = g_nVersionCheck;
+
+            string s = Environment.GetEnvironmentVariable(USERID, EnvironmentVariableTarget.User);
+            if(!string.IsNullOrWhiteSpace(s))
+            {
+                TB_ID.Text = s;
+            }
+        }
+
+        private void OnLoginSuccess()
+        {
+            g_bLoginYN = true;
+            //Btn_Logout.Enabled = true;
+            //Btn_Search.Enabled = true;
+            //Btn_SetReal.Enabled = true;
+            //Btn_UnReal.Enabled = true;
+            //Btn_Kwansim.Enabled = true;
+
+            //Btn_GBSearch.Enabled = true;
+            //Btn_GBSetReal.Enabled = true;
+            //Btn_GBUnReal.Enabled = true;
+            //Btn_GBKwansim.Enabled = true;
+
+            //Btn_FOSearch.Enabled = true;
+            //Btn_FOSetReal.Enabled = true;
+            //Btn_FOUnReal.Enabled = true;
+
+            if(CB_saveID.IsChecked == true)
+            {
+                Environment.SetEnvironmentVariable(USERID, g_sLoginId, EnvironmentVariableTarget.User);
+            }
+            else
+            {
+                Environment.SetEnvironmentVariable(USERID, string.Empty, EnvironmentVariableTarget.User);
+            }
+
+            System.Windows.MessageBox.Show("로그인 성공");
+
+            new Form1(axChampionCommAgent1, g_sLoginId).ShowDialog();
         }
 
         private void Btn_Login_Click(object sender, EventArgs e)
@@ -71,26 +112,8 @@ namespace ChampionOpenAPI_CSharp
             if (nRtn == 0)
             {
                 //로그인 성공
-                g_bLoginYN = true;
                 g_sLoginId = strID;
-                //Btn_Logout.Enabled = true;
-                //Btn_Search.Enabled = true;
-                //Btn_SetReal.Enabled = true;
-                //Btn_UnReal.Enabled = true;
-                //Btn_Kwansim.Enabled = true;
-
-                //Btn_GBSearch.Enabled = true;
-                //Btn_GBSetReal.Enabled = true;
-                //Btn_GBUnReal.Enabled = true;
-                //Btn_GBKwansim.Enabled = true;
-
-                //Btn_FOSearch.Enabled = true;
-                //Btn_FOSetReal.Enabled = true;
-                //Btn_FOUnReal.Enabled = true;
-
-                System.Windows.MessageBox.Show("로그인 성공");
-
-                new Form1(axChampionCommAgent1, strID).ShowDialog();
+                OnLoginSuccess();
             }
             else
             {
@@ -103,8 +126,9 @@ namespace ChampionOpenAPI_CSharp
             }
         }
         
-        private void DynamicInitializeComponent()
+        private void InitComp()
         {
+            Stopwatch sw = Stopwatch.StartNew();
             this.axChampionCommAgent1 = new AxChampionCommAgentLib.AxChampionCommAgent();
             ((System.ComponentModel.ISupportInitialize)(this.axChampionCommAgent1)).BeginInit();
             new System.Windows.Forms.GroupBox().Controls.Add(this.axChampionCommAgent1);
@@ -116,10 +140,8 @@ namespace ChampionOpenAPI_CSharp
             this.axChampionCommAgent1.Name = "axChampionCommAgent1";
             this.axChampionCommAgent1.Size = new System.Drawing.Size(46, 22);
             this.axChampionCommAgent1.TabIndex = 16;
-            //this.axChampionCommAgent1.OnGetTranData += new AxChampionCommAgentLib._DChampionCommAgentEvents_OnGetTranDataEventHandler(this.axChampionCommAgent1_OnGetTranData);
-            //this.axChampionCommAgent1.OnGetFidData += new AxChampionCommAgentLib._DChampionCommAgentEvents_OnGetFidDataEventHandler(this.axChampionCommAgent1_OnGetFidData);
-            //this.axChampionCommAgent1.OnGetRealData += new AxChampionCommAgentLib._DChampionCommAgentEvents_OnGetRealDataEventHandler(this.axChampionCommAgent1_OnGetRealData);
             ((System.ComponentModel.ISupportInitialize)(this.axChampionCommAgent1)).EndInit();
+            Console.WriteLine("InitComp:" + sw.Elapsed);
         }
 
         private void QUEST_PO_Click(object sender, RoutedEventArgs e)
