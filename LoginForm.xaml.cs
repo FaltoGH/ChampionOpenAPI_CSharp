@@ -1,4 +1,5 @@
-﻿using AxChampionCommAgentLib;
+﻿using Aes_Example;
+using AxChampionCommAgentLib;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -31,6 +32,8 @@ namespace ChampionOpenAPI_CSharp
         private string g_sLoginId;
         private int g_nVersionCheck;
         private const string USERID = "eugenefn_userid";
+        private const string PWD = "eugenefn_Pwd";
+        private const string CRETPWD = "eugenefn_CretPwd";
 
         public LoginForm(int g_nVersionCheck)
         {
@@ -42,7 +45,29 @@ namespace ChampionOpenAPI_CSharp
             if(!string.IsNullOrWhiteSpace(s))
             {
                 TB_ID.Text = s;
+
+                s = Environment.GetEnvironmentVariable(PWD, EnvironmentVariableTarget.User);
+                if (!string.IsNullOrWhiteSpace(s))
+                {
+                    s = AesExample.Decrypt(s);
+                    TB_Pwd.Password = s;
+
+                    s = Environment.GetEnvironmentVariable(CRETPWD, EnvironmentVariableTarget.User);
+                    if (!string.IsNullOrWhiteSpace(s))
+                    {
+                        CB_PO.IsChecked = false;
+                        TB_CretPwd.Password = s;
+                    }
+                    else
+                    {
+                        CB_PO.IsChecked = true;
+                    }
+
+                    CB_staySignedIn.IsChecked = true;
+                    Btn_Login_Click(this, EventArgs.Empty);
+                }
             }
+
         }
 
         private void OnLoginSuccess()
@@ -63,13 +88,24 @@ namespace ChampionOpenAPI_CSharp
             //Btn_FOSetReal.Enabled = true;
             //Btn_FOUnReal.Enabled = true;
 
-            if(CB_saveID.IsChecked == true)
+            if(CB_saveID.IsChecked == true || CB_staySignedIn.IsChecked == true)
             {
                 Environment.SetEnvironmentVariable(USERID, g_sLoginId, EnvironmentVariableTarget.User);
             }
             else
             {
                 Environment.SetEnvironmentVariable(USERID, string.Empty, EnvironmentVariableTarget.User);
+            }
+
+            if (CB_staySignedIn.IsChecked == true)
+            {
+                string s = AesExample.Encrypt(TB_Pwd.Password);
+                Environment.SetEnvironmentVariable(PWD, s, EnvironmentVariableTarget.User);
+                if (CB_PO.IsChecked == false)
+                {
+                    s = AesExample.Encrypt(TB_CretPwd.Password);
+                    Environment.SetEnvironmentVariable(CRETPWD, s, EnvironmentVariableTarget.User);
+                }
             }
 
             System.Windows.MessageBox.Show("로그인 성공");

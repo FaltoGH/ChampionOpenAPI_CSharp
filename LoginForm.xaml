@@ -217,7 +217,7 @@
             </Button>
             
             <CheckBox VerticalAlignment="Center" Margin="9 0 0 0"
-                      >로그인 상태 유지</CheckBox>
+                      x:Name="CB_staySignedIn">로그인 상태 유지</CheckBox>
         </StackPanel>
 
         <Grid Grid.Row="5" Background="Gray" Grid.ColumnSpan="2"/>
