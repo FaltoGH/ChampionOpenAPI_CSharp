@@ -104,24 +104,39 @@ namespace ChampionOpenAPI_CSharp
 
         private void OnVersionCheckSuccess()
         {
-            if (!versionCheckSuccessFlag)
+            if (!this.versionCheckSuccessFlag)
             {
                 // you only execute once
-                versionCheckSuccessFlag = true;
+                this.versionCheckSuccessFlag = true;
                 this.grid.Children.Clear();
-                loginForm = new LoginForm();
-                loginForm.LoginSuccess += LoginForm_LoginSuccess;
-                loginForm.SetNVersionCheck(g_nVersionCheck);
+
+                this.loginForm = new LoginForm();
+                this.loginForm.LoginSuccess += LoginForm_LoginSuccess;
                 this.grid.Children.Add(loginForm);
+                this.loginForm.SetNVersionCheck(g_nVersionCheck);
             }
+        }
+
+        private void assert(bool v)
+        {
+            if (!v) throw new Exception();
         }
 
         private void LoginForm_LoginSuccess(object sender, EventArgs e)
         {
-            Form1 f = new Form1(loginForm.axChampionCommAgent1, loginForm.g_sLoginId);
-            Hide();
-            f.ShowDialog();
-            Close();
+            assert(this.grid.Children.Count == 1);
+            this.grid.Children.Clear();
+            assert(this.grid.Children.Count == 0);
+
+            LogoutForm f = new LogoutForm(loginForm.g_sLoginId, loginForm.axChampionCommAgent1);
+            f.LogoutEugeneFN += OnLogoutEugeneFN;
+            this.grid.Children.Add(f);
+        }
+
+        private void OnLogoutEugeneFN(object sender, EventArgs e)
+        {
+            this.grid.Children.Clear();
+            this.grid.Children.Add(loginForm);
         }
 
         // 윈도우 메세지 수신(버전처리)
@@ -149,21 +164,6 @@ namespace ChampionOpenAPI_CSharp
                 System.Windows.MessageBox.Show(ex.ToString());
             }
             return IntPtr.Zero;
-        }
-
-        protected override void OnClosed(EventArgs e)
-        {
-            base.OnClosed(e);
-            this.loginForm?.axChampionCommAgent1?.Dispose();
-        }
-
-        protected override void OnKeyDown(System.Windows.Input.KeyEventArgs e)
-        {
-            base.OnKeyDown(e);
-            if(e.Key == Key.Escape)
-            {
-                OnVersionCheckSuccess();
-            }
         }
     }
 }

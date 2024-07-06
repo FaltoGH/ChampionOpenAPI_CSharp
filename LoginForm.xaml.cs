@@ -32,8 +32,8 @@ namespace ChampionOpenAPI_CSharp
         public string g_sLoginId;
         private int g_nVersionCheck;
         private const string USERID = "eugenefn_userid";
-        private const string PWD = "eugenefn_Pwd";
-        private const string CRETPWD = "eugenefn_CretPwd";
+        public const string PWD = "eugenefn_Pwd";
+        public const string CRETPWD = "eugenefn_CretPwd";
         public event EventHandler LoginSuccess;
 
         public LoginForm()
