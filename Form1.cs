@@ -82,6 +82,7 @@ namespace ChampionOpenAPI_CSharp
 
         public Form1(AxChampionCommAgentLib.AxChampionCommAgent axChampionCommAgent1, string strID)
         {
+            StartPosition = FormStartPosition.CenterScreen;
             InitializeComponent();
             this.axChampionCommAgent1 = axChampionCommAgent1;
             DynamicInitializeComponent();

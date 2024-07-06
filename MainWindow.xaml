@@ -4,8 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="440" Width="740"
+        WindowStartupLocation="CenterScreen">
     <Grid x:Name="grid">
-        <Button Click="Btn_VerChk_Click" x:Name="button">버전체크</Button>
+        <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="44" Margin="0 -144 0 0">버전 체크 중...</Label>
     </Grid>
 </Window>

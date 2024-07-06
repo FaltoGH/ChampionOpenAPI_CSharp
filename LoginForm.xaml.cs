@@ -29,45 +29,16 @@ namespace ChampionOpenAPI_CSharp
 #pragma warning restore CS0414 // The field 'LoginForm.g_bLoginYN' is assigned but its value is never used
 #pragma warning restore IDE0052 // Remove unread private members
         private string g_sMsg;
-        private string g_sLoginId;
+        public string g_sLoginId;
         private int g_nVersionCheck;
         private const string USERID = "eugenefn_userid";
         private const string PWD = "eugenefn_Pwd";
         private const string CRETPWD = "eugenefn_CretPwd";
+        public event EventHandler LoginSuccess;
 
-        public LoginForm(int g_nVersionCheck)
+        public LoginForm()
         {
             InitializeComponent();
-            InitComp();
-            this.g_nVersionCheck = g_nVersionCheck;
-
-            string s = Environment.GetEnvironmentVariable(USERID, EnvironmentVariableTarget.User);
-            if(!string.IsNullOrWhiteSpace(s))
-            {
-                TB_ID.Text = s;
-
-                s = Environment.GetEnvironmentVariable(PWD, EnvironmentVariableTarget.User);
-                if (!string.IsNullOrWhiteSpace(s))
-                {
-                    s = AesExample.Decrypt(s);
-                    TB_Pwd.Password = s;
-
-                    s = Environment.GetEnvironmentVariable(CRETPWD, EnvironmentVariableTarget.User);
-                    if (!string.IsNullOrWhiteSpace(s))
-                    {
-                        CB_PO.IsChecked = false;
-                        TB_CretPwd.Password = s;
-                    }
-                    else
-                    {
-                        CB_PO.IsChecked = true;
-                    }
-
-                    CB_staySignedIn.IsChecked = true;
-                    Btn_Login_Click(this, EventArgs.Empty);
-                }
-            }
-
         }
 
         private void OnLoginSuccess()
@@ -108,9 +79,9 @@ namespace ChampionOpenAPI_CSharp
                 }
             }
 
-            System.Windows.MessageBox.Show("로그인 성공");
+            //System.Windows.MessageBox.Show("로그인 성공");
+            LoginSuccess?.Invoke(this, EventArgs.Empty);
 
-            new Form1(axChampionCommAgent1, g_sLoginId).ShowDialog();
         }
 
         private void Btn_Login_Click(object sender, EventArgs e)
@@ -183,6 +154,39 @@ namespace ChampionOpenAPI_CSharp
         private void QUEST_PO_Click(object sender, RoutedEventArgs e)
         {
             System.Windows.MessageBox.Show("주문 및 은행이체, 계좌간대체, 청약서비스 등 인증서가 반드시 필요한 거래는 이용하실 수 없습니다.", "시세전용으로 로그인");
+        }
+
+        public void SetNVersionCheck(int g_nVersionCheck)
+        {
+            InitComp();
+            this.g_nVersionCheck = g_nVersionCheck;
+
+            string s = Environment.GetEnvironmentVariable(USERID, EnvironmentVariableTarget.User);
+            if (!string.IsNullOrWhiteSpace(s))
+            {
+                TB_ID.Text = s;
+
+                s = Environment.GetEnvironmentVariable(PWD, EnvironmentVariableTarget.User);
+                if (!string.IsNullOrWhiteSpace(s))
+                {
+                    s = AesExample.Decrypt(s);
+                    TB_Pwd.Password = s;
+
+                    s = Environment.GetEnvironmentVariable(CRETPWD, EnvironmentVariableTarget.User);
+                    if (!string.IsNullOrWhiteSpace(s))
+                    {
+                        CB_PO.IsChecked = false;
+                        TB_CretPwd.Password = s;
+                    }
+                    else
+                    {
+                        CB_PO.IsChecked = true;
+                    }
+
+                    CB_staySignedIn.IsChecked = true;
+                    Btn_Login_Click(this, EventArgs.Empty);
+                }
+            }
         }
     }
 }

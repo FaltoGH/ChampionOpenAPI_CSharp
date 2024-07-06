@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using AxChampionCommAgentLib;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -42,6 +43,8 @@ namespace ChampionOpenAPI_CSharp
             // https://stackoverflow.com/a/1926796/14367566
             HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
             source.AddHook(WndProc);
+
+            Btn_VerChk_Click(this, EventArgs.Empty);
         }
 
         private void Btn_VerChk_Click(object sender, EventArgs e)
@@ -91,11 +94,12 @@ namespace ChampionOpenAPI_CSharp
             {
                 Process.Start(startInfo);
             }
-            catch (Win32Exception)
+            catch (Win32Exception ex)
             {
+                System.Windows.MessageBox.Show(ex.ToString());
+                Close();
                 return;
             }
-            this.button.IsEnabled = false;
         }
 
         private void OnVersionCheckSuccess()
@@ -104,10 +108,20 @@ namespace ChampionOpenAPI_CSharp
             {
                 // you only execute once
                 versionCheckSuccessFlag = true;
-                this.grid.Children.Remove(this.button);
-                loginForm = new LoginForm(g_nVersionCheck);
+                this.grid.Children.Clear();
+                loginForm = new LoginForm();
+                loginForm.LoginSuccess += LoginForm_LoginSuccess;
+                loginForm.SetNVersionCheck(g_nVersionCheck);
                 this.grid.Children.Add(loginForm);
             }
+        }
+
+        private void LoginForm_LoginSuccess(object sender, EventArgs e)
+        {
+            Form1 f = new Form1(loginForm.axChampionCommAgent1, loginForm.g_sLoginId);
+            Hide();
+            f.ShowDialog();
+            Close();
         }
 
         // 윈도우 메세지 수신(버전처리)
