@@ -22,7 +22,7 @@ namespace ChampionOpenAPI_CSharp
 {
     public partial class LoginForm : System.Windows.Controls.UserControl
     {
-        public AxChampionCommAgentLib.AxChampionCommAgent axChampionCommAgent1;
+        public AxChampionCommAgent2 axChampionCommAgent1;
 #pragma warning disable IDE0052 // Remove unread private members
 #pragma warning disable CS0414 // The field 'LoginForm.g_bLoginYN' is assigned but its value is never used
         private bool g_bLoginYN;
@@ -86,6 +86,7 @@ namespace ChampionOpenAPI_CSharp
 
         private void Btn_Login_Click(object sender, EventArgs e)
         {
+            this.IsEnabled = false;
             string strID = TB_ID.Text;             // 로그인 아이디
             string strPwd = TB_Pwd.Password;           // 로그인 비밀번호
             string strCretPwd = TB_CretPwd.Password;   // 인증 비밀번호
@@ -94,6 +95,7 @@ namespace ChampionOpenAPI_CSharp
             if (strID.Length == 0 || strPwd.Length == 0)
             {
                 System.Windows.MessageBox.Show("로그인 입력값을 확인 바랍니다.");
+                this.IsEnabled = true;
                 return;
             }
 
@@ -104,6 +106,7 @@ namespace ChampionOpenAPI_CSharp
                     "확인", MessageBoxButton.OKCancel, System.Windows.MessageBoxImage.Information);
                 if (MsgRtn == MessageBoxResult.Cancel)
                 {
+                    this.IsEnabled = true;
                     return;
                 }
                 CB_PO.IsChecked = true;
@@ -129,14 +132,16 @@ namespace ChampionOpenAPI_CSharp
 
                 g_sMsg = axChampionCommAgent1.GetLastErrMsg();
                 System.Windows.MessageBox.Show(g_sMsg.Trim(), "로그인 실패");
+                this.IsEnabled = true;
                 return;
             }
+            this.IsEnabled = true;
         }
         
         private void InitComp()
         {
             Stopwatch sw = Stopwatch.StartNew();
-            this.axChampionCommAgent1 = new AxChampionCommAgentLib.AxChampionCommAgent();
+            this.axChampionCommAgent1 = new ChampionOpenAPI_CSharp.AxChampionCommAgent2();
             ((System.ComponentModel.ISupportInitialize)(this.axChampionCommAgent1)).BeginInit();
             new System.Windows.Forms.GroupBox().Controls.Add(this.axChampionCommAgent1);
             // 
@@ -148,7 +153,7 @@ namespace ChampionOpenAPI_CSharp
             this.axChampionCommAgent1.Size = new System.Drawing.Size(46, 22);
             this.axChampionCommAgent1.TabIndex = 16;
             ((System.ComponentModel.ISupportInitialize)(this.axChampionCommAgent1)).EndInit();
-            Console.WriteLine("InitComp:" + sw.Elapsed);
+            Console.WriteLine("LoginForm.xaml.cs:InitComp:" + sw.Elapsed);
         }
 
         private void QUEST_PO_Click(object sender, RoutedEventArgs e)
@@ -175,6 +180,7 @@ namespace ChampionOpenAPI_CSharp
                     s = Environment.GetEnvironmentVariable(CRETPWD, EnvironmentVariableTarget.User);
                     if (!string.IsNullOrWhiteSpace(s))
                     {
+                        s = AesExample.Decrypt(s);
                         CB_PO.IsChecked = false;
                         TB_CretPwd.Password = s;
                     }

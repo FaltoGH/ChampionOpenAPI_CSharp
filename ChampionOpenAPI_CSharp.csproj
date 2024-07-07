@@ -63,12 +63,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AesExample.cs" />
+    <Compile Include="AxChampionCommAgent2.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="IChampionCommAgent.cs" />
     <Compile Include="LoginForm.xaml.cs">
       <DependentUpon>LoginForm.xaml</DependentUpon>
     </Compile>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,10 +22,10 @@ namespace ChampionOpenAPI_CSharp
     public partial class LogoutForm : UserControl
     {
         public event EventHandler LogoutEugeneFN;
-        private AxChampionCommAgentLib.AxChampionCommAgent axChampionCommAgent1;
+        private IChampionCommAgent axChampionCommAgent1;
         private string g_sLoginId;
 
-        public LogoutForm(string g_sLoginId, AxChampionCommAgentLib.AxChampionCommAgent axChampionCommAgent1)
+        public LogoutForm(string g_sLoginId, IChampionCommAgent axChampionCommAgent1)
         {
             InitializeComponent();
             this.g_sLoginId = g_sLoginId;
@@ -56,16 +57,16 @@ namespace ChampionOpenAPI_CSharp
                 //Btn_FOSearch.Enabled = false;
                 //Btn_FOSetReal.Enabled = false;
                 //Btn_FOUnReal.Enabled = false;
-
+                
+                // Disable "Stay signed in"
                 Environment.SetEnvironmentVariable(LoginForm.PWD, string.Empty, EnvironmentVariableTarget.User);
                 Environment.SetEnvironmentVariable(LoginForm.CRETPWD, string.Empty, EnvironmentVariableTarget.User);
-
+                
                 axChampionCommAgent1.AllUnRegisterReal();   //모든 실시간 해제
                 axChampionCommAgent1.CommTerminate(1);   //통신종료
 
                 LogoutEugeneFN?.Invoke(sender, e);
             }
         }
-
     }
 }
