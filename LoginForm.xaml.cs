@@ -78,6 +78,11 @@ namespace ChampionOpenAPI_CSharp
                     Environment.SetEnvironmentVariable(CRETPWD, s, EnvironmentVariableTarget.User);
                 }
             }
+            else
+            {
+                Environment.SetEnvironmentVariable(PWD, "", EnvironmentVariableTarget.User);
+                Environment.SetEnvironmentVariable(CRETPWD, "", EnvironmentVariableTarget.User);
+            }
 
             //System.Windows.MessageBox.Show("로그인 성공");
             LoginSuccess?.Invoke(this, EventArgs.Empty);
@@ -138,13 +143,6 @@ namespace ChampionOpenAPI_CSharp
             this.IsEnabled = true;
         }
         
-        private void InitComp()
-        {
-            Stopwatch sw = Stopwatch.StartNew();
-            this.axChampionCommAgent1 = new ChampionOpenAPI_CSharp.AxChampionCommAgent2();
-            Console.WriteLine("LoginForm.xaml.cs:InitComp:" + sw.Elapsed);
-        }
-
         private void QUEST_PO_Click(object sender, RoutedEventArgs e)
         {
             System.Windows.MessageBox.Show("주문 및 은행이체, 계좌간대체, 청약서비스 등 인증서가 반드시 필요한 거래는 이용하실 수 없습니다.", "시세전용으로 로그인");
@@ -152,7 +150,15 @@ namespace ChampionOpenAPI_CSharp
 
         public void SetNVersionCheck(int g_nVersionCheck)
         {
-            InitComp();
+            this.axChampionCommAgent1 = new ChampionOpenAPI_CSharp.AxChampionCommAgent2();
+#if DEBUG
+            if(g_nVersionCheck <= 0)
+            {
+                OnLoginSuccess();
+                return;
+            }
+#endif
+
             this.g_nVersionCheck = g_nVersionCheck;
 
             string s = Environment.GetEnvironmentVariable(USERID, EnvironmentVariableTarget.User);

@@ -184,6 +184,6 @@ namespace ChampionOpenAPI_CSharp
         [return: MarshalAs(UnmanagedType.BStr)]
         string GetOverseaStockInfo([MarshalAs(UnmanagedType.BStr)] string sCode, int nItemIndex);
 
-        List<string> GetCodeList();
+        IReadOnlyList<string> GetCodeList();
     }
 }

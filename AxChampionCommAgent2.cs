@@ -2,6 +2,7 @@
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -27,7 +28,13 @@ namespace ChampionOpenAPI_CSharp
             this.Name = "axChampionCommAgent1";
             this.Size = new System.Drawing.Size(46, 22);
             this.TabIndex = 16;
+#if DEBUG
+            Stopwatch sw = Stopwatch.StartNew();
+#endif
             this.EndInit();
+#if DEBUG
+            Console.WriteLine("AxChampionCommAgent2..ctor():EndInit():" + sw.Elapsed);
+#endif
         }
 
         public override string GetApiAgentModulePath()
@@ -65,7 +72,7 @@ namespace ChampionOpenAPI_CSharp
             return apiAgentModulePath;
         }
 
-        public List<string> GetCodeList()
+        public IReadOnlyList<string> GetCodeList()
         {
             if (gbcode_cod == null)
             {

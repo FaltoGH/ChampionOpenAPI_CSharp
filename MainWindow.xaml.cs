@@ -36,6 +36,17 @@ namespace ChampionOpenAPI_CSharp
             InitializeComponent();
         }
 
+        protected override void OnKeyDown(System.Windows.Input.KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+#if DEBUG
+            if(e.Key == Key.Escape)
+            {
+                OnVersionCheckSuccess();
+            }
+#endif
+        }
+
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
@@ -43,12 +54,12 @@ namespace ChampionOpenAPI_CSharp
             // https://stackoverflow.com/a/1926796/14367566
             HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
             source.AddHook(WndProc);
-
-            Btn_VerChk_Click(this, EventArgs.Empty);
         }
 
         private void Btn_VerChk_Click(object sender, EventArgs e)
         {
+            this.Btn_VerChk.IsEnabled = false;
+
             RegistryKey regkey = Registry.CurrentUser;
             regkey = regkey.OpenSubKey("Software\\EugeneFN\\Champion", true);
 
@@ -62,12 +73,14 @@ namespace ChampionOpenAPI_CSharp
                 else
                 {
                     System.Windows.MessageBox.Show("OpenApi의 위치를 찾지 못했습니다.");
+                    this.Btn_VerChk.IsEnabled = true;
                     return;
                 }
             }
             else
             {
                 System.Windows.MessageBox.Show("프로그램의 위치를 찾지 못했습니다.");
+                this.Btn_VerChk.IsEnabled = true;
                 return;
             }
 
@@ -97,8 +110,7 @@ namespace ChampionOpenAPI_CSharp
             catch (Win32Exception ex)
             {
                 System.Windows.MessageBox.Show(ex.ToString());
-                Close();
-                return;
+                this.Btn_VerChk.IsEnabled = true;
             }
         }
 
@@ -162,6 +174,7 @@ namespace ChampionOpenAPI_CSharp
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show(ex.ToString());
+                this.Btn_VerChk.IsEnabled = true;
             }
             return IntPtr.Zero;
         }

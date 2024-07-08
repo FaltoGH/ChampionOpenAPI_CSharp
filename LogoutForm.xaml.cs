@@ -25,11 +25,18 @@ namespace ChampionOpenAPI_CSharp
         private IChampionCommAgent axChampionCommAgent1;
         private string g_sLoginId;
 
+        private string[] Lookup(string s)
+        {
+            IReadOnlyList<string> codeList = axChampionCommAgent1.GetCodeList();
+            return codeList.Where(x => x.Contains(s)).ToArray();
+        }
+
         public LogoutForm(string g_sLoginId, IChampionCommAgent axChampionCommAgent1)
         {
             InitializeComponent();
             this.g_sLoginId = g_sLoginId;
             this.axChampionCommAgent1 = axChampionCommAgent1;
+            this.selectFolderTextBox.Lookup = Lookup;
         }
         
         private void BTN_logout_Click(object sender, RoutedEventArgs e)

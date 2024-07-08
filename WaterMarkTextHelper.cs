@@ -5,7 +5,8 @@ namespace ChampionOpenAPI_CSharp
 {
     public class WaterMarkTextHelper : DependencyObject
     {
-        // https://prabu-guru.blogspot.com/2010/06/how-to-add-watermark-text-to-textbox.html
+        // source: https://prabu-guru.blogspot.com/2010/06/how-to-add-watermark-text-to-textbox.html
+
         #region Attached Properties
 
         public static bool GetIsMonitoring(DependencyObject obj)

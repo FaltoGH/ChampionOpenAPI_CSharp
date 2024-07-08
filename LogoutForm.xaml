@@ -3,11 +3,29 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:f="clr-namespace:System.Windows.Forms.DataVisualization.Charting;assembly=System.Windows.Forms.DataVisualization"
+             xmlns:q="clr-namespace:QuickZip.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="700">
-    <DockPanel LastChildFill="False">
+    
+    <DockPanel>
+        
         <Grid DockPanel.Dock="Top">
             <Button Height="24" Width="54" HorizontalAlignment="Right" Click="BTN_logout_Click">로그아웃</Button>
         </Grid>
+        
+        <DockPanel>
+            
+            <Grid DockPanel.Dock="Top">
+                <q:SelectFolderTextBox x:Name="selectFolderTextBox"/>
+            </Grid>
+            
+            <WindowsFormsHost Grid.Column="1">
+                <f:Chart/>
+            </WindowsFormsHost>
+            
+        </DockPanel>
+        
     </DockPanel>
+    
 </UserControl>
