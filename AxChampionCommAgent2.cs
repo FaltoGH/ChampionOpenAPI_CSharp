@@ -1,4 +1,5 @@
 ﻿using AxChampionCommAgentLib;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,19 +14,62 @@ namespace ChampionOpenAPI_CSharp
         private string apiAgentModulePath;
         private string gbcode_cod;
         private List<string> codeList;
+
+        public AxChampionCommAgent2()
+        {
+            this.BeginInit();
+            new System.Windows.Forms.GroupBox().Controls.Add(this);
+            // 
+            // axChampionCommAgent
+            // 
+            this.Enabled = true;
+            this.Location = new System.Drawing.Point(168, 46);
+            this.Name = "axChampionCommAgent1";
+            this.Size = new System.Drawing.Size(46, 22);
+            this.TabIndex = 16;
+            this.EndInit();
+        }
+
+        public override string GetApiAgentModulePath()
+        {
+            if(!string.IsNullOrWhiteSpace(apiAgentModulePath))
+            {
+                return apiAgentModulePath;
+            }
+
+            apiAgentModulePath = base.GetApiAgentModulePath();
+            if (!string.IsNullOrWhiteSpace(apiAgentModulePath))
+            {
+                return apiAgentModulePath;
+            }
+
+            RegistryKey regkey = Registry.CurrentUser;
+            regkey = regkey.OpenSubKey("Software\\EugeneFN\\Champion", true);
+            if (regkey == null)
+            {
+                throw new KeyNotFoundException("프로그램의 위치를 찾지 못했습니다.");
+            }
+            
+            Object objVal = regkey.GetValue("PATH");
+            if (objVal == null)
+            {
+                throw new DirectoryNotFoundException("OpenApi의 위치를 찾지 못했습니다.");
+            }
+
+            apiAgentModulePath = Convert.ToString(objVal);
+            if (string.IsNullOrWhiteSpace(apiAgentModulePath))
+            {
+                throw new NullReferenceException();
+            }
+
+            return apiAgentModulePath;
+        }
+
         public List<string> GetCodeList()
         {
-            if (this.apiAgentModulePath == null)
-            {
-                apiAgentModulePath = GetApiAgentModulePath();
-                if (string.IsNullOrWhiteSpace(apiAgentModulePath))
-                {
-                    throw new ArgumentNullException();
-                }
-            }
             if (gbcode_cod == null)
             {
-                gbcode_cod = Path.Combine(apiAgentModulePath, "gbcode.cod");
+                gbcode_cod = Path.Combine(GetApiAgentModulePath(), "mst", "gbcode.cod");
                 if (!File.Exists(gbcode_cod))
                 {
                     throw new FileNotFoundException();

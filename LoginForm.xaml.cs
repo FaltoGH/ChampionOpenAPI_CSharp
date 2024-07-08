@@ -142,17 +142,6 @@ namespace ChampionOpenAPI_CSharp
         {
             Stopwatch sw = Stopwatch.StartNew();
             this.axChampionCommAgent1 = new ChampionOpenAPI_CSharp.AxChampionCommAgent2();
-            ((System.ComponentModel.ISupportInitialize)(this.axChampionCommAgent1)).BeginInit();
-            new System.Windows.Forms.GroupBox().Controls.Add(this.axChampionCommAgent1);
-            // 
-            // axChampionCommAgent1
-            // 
-            this.axChampionCommAgent1.Enabled = true;
-            this.axChampionCommAgent1.Location = new System.Drawing.Point(168, 46);
-            this.axChampionCommAgent1.Name = "axChampionCommAgent1";
-            this.axChampionCommAgent1.Size = new System.Drawing.Size(46, 22);
-            this.axChampionCommAgent1.TabIndex = 16;
-            ((System.ComponentModel.ISupportInitialize)(this.axChampionCommAgent1)).EndInit();
             Console.WriteLine("LoginForm.xaml.cs:InitComp:" + sw.Elapsed);
         }
 

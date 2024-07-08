@@ -31,7 +31,7 @@ namespace ChampionOpenAPI_CSharp
             this.g_sLoginId = g_sLoginId;
             this.axChampionCommAgent1 = axChampionCommAgent1;
         }
-
+        
         private void BTN_logout_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(g_sLoginId))
