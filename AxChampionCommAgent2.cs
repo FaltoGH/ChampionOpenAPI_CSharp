@@ -1,4 +1,5 @@
 ﻿using AxChampionCommAgentLib;
+using ChampionOpenAPI_CSharp.Data;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -143,13 +144,12 @@ namespace ChampionOpenAPI_CSharp
         // 윈도우 메세지 수신(버전처리)
         void wndProc(Message m)
         {
-#if DEBUG
-            Console.WriteLine("[DEBUG] [{0}] {1}", DateTime.Now.ToString("HH:mm:ss.fff"), m);
-#endif
-
             if (m.Msg == 0x1cfe)  // 버전처리완료 메세지
             {
-            Console.WriteLine("[DEBUG] [{0}] Version process done.", DateTime.Now.ToString("HH:mm:ss.fff"));
+
+#if DEBUG
+                Console.WriteLine("[DEBUG] [{0}] Version process done.", DateTime.Now.ToString("HH:mm:ss.fff"));
+#endif
 
                 int g_nVersionCheck;
                 if ((int)m.LParam == 1)
@@ -195,6 +195,26 @@ namespace ChampionOpenAPI_CSharp
             if (nVersionPassKey <= 0)
                 throw new ArgumentOutOfRangeException();
             return base.CommLoginPartner(nVersionPassKey, sUserID, sPwd, sCertPwd, sPartnerCode);
+        }
+
+        public OverseaStockInfo GetOverseaStockInfo(string sCode)
+        {
+            OverseaStockInfo ret;
+            ret.shortcode = GetOverseaStockInfo(sCode, 0);
+            ret.expcode = GetOverseaStockInfo(sCode, 1);
+            ret.hname = GetOverseaStockInfo(sCode, 5);
+            ret.ename = GetOverseaStockInfo(sCode, 6);
+            ret.isincode = GetOverseaStockInfo(sCode, 7);
+            ret.upcodes = GetOverseaStockInfo(sCode, 8);
+            ret.div_code = GetOverseaStockInfo(sCode, 9);
+            ret.tradeunit = GetOverseaStockInfo(sCode, 10);
+            ret.floatpoint = GetOverseaStockInfo(sCode, 11);
+            ret.ticktype = GetOverseaStockInfo(sCode, 12);
+            ret.currency = GetOverseaStockInfo(sCode, 13);
+            ret.bymd = GetOverseaStockInfo(sCode, 14);
+            ret.corebankingexchangecode = GetOverseaStockInfo(sCode, 15);
+            ret.fullcode = GetOverseaStockInfo(sCode, 16);
+            return ret;
         }
     }
 }

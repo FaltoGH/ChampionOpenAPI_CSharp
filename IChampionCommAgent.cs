@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChampionOpenAPI_CSharp.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -187,10 +188,21 @@ namespace ChampionOpenAPI_CSharp
         [DispId(78)]
         short GetMarketKubun([MarshalAs(UnmanagedType.BStr)] string sShCode, [MarshalAs(UnmanagedType.BStr)] string sMarkets);
 
+        /// <summary>
+        /// 해외주식 종목정보를 구하는 함수 
+        /// </summary>
+        /// <param name="sCode">해외 종목 표준 코드(거래소코드+종목코드 )</param>
+        /// <param name="nItemIndex">옵션 구분 인덱스</param>
         [MethodImpl(MethodImplOptions.PreserveSig | MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
         [DispId(79)]
         [return: MarshalAs(UnmanagedType.BStr)]
         string GetOverseaStockInfo([MarshalAs(UnmanagedType.BStr)] string sCode, int nItemIndex);
+
+        /// <summary>
+        /// 해외주식 종목정보를 구하는 함수 
+        /// </summary>
+        /// <param name="sCode">해외 종목 표준 코드(거래소코드+종목코드 )</param>
+        OverseaStockInfo GetOverseaStockInfo(string sCode);
 
         /// <summary>
         /// 해외주식의 자체표준코드(expcode) 목록을 반환한다.

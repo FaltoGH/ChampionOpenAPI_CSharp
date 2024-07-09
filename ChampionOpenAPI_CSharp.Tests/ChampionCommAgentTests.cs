@@ -42,28 +42,27 @@ namespace ChampionOpenAPI_CSharp.Tests
 
                 x?.Invoke(agent);
 
-                Console.WriteLine("Done 1");
+                Console.WriteLine("Done! (1)");
                 Application.Exit();
             });
 
             Application.Run();
-            Console.WriteLine("Done 2");
+            Console.WriteLine("Done! (2)");
         }
 
         [TestMethod]
         public void GetExpCodeTests()
         {
+            const string shCode = "000660";
+            const string expCode = "KR7000660001";
+            const string name = "SK하이닉스";
+
             TestInside(agent =>
             {
-                string expCode = agent.GetExpCode("000660");
-                Assert.AreEqual("KR7000660001", expCode);
-
-                string shCode = agent.GetShCode(expCode);
-                Assert.AreEqual("000660", shCode);
-
-                string name = agent.GetNameByCode(shCode);
+                Assert.AreEqual(expCode, agent.GetExpCode(shCode));
+                Assert.AreEqual(shCode, agent.GetShCode(expCode));
+                Assert.AreEqual(name, agent.GetNameByCode(shCode));
                 Assert.AreEqual(name, agent.GetNameByCode(expCode));
-
                 Assert.AreEqual(shCode, agent.GetShCodeByName(name));
             });
         }
@@ -75,10 +74,37 @@ namespace ChampionOpenAPI_CSharp.Tests
             {
                 IReadOnlyList<string> codeList = agent.GetCodeList();
                 string code = codeList[2];
-                Console.WriteLine(agent.GetOverseaStockInfo(code, 0));
-                Assert.AreEqual(code, agent.GetOverseaStockInfo(code, 1));
-                Console.WriteLine(agent.GetOverseaStockInfo(code, 5));
-                Console.WriteLine(agent.GetOverseaStockInfo(code, 6));
+
+                string shCode = agent.GetShCode(code);
+                Console.WriteLine("GetShCode=" + shCode);
+
+                Assert.AreEqual(code, agent.GetExpCode(shCode));
+
+                string name = agent.GetNameByCode(code);
+                Console.WriteLine("GetNameByCode=" + name);
+
+                if (!string.IsNullOrWhiteSpace(name))
+                {
+                    Assert.AreEqual(shCode, agent.GetShCodeByName(name));
+                }
+
+                Assert.AreEqual(shCode, agent.GetOverseaStockInfo(code, 0)); // shortcode
+
+                Assert.AreEqual(code, agent.GetOverseaStockInfo(code, 1)); // expcode
+
+                string s;
+                for(byte i = 5; i < 15; i++)
+                {
+                    s = agent.GetOverseaStockInfo(code, i);
+                    Assert.IsFalse(string.IsNullOrWhiteSpace(s));
+                    Console.WriteLine("{0}: {1}", i, s);
+                }
+
+                s = agent.GetOverseaStockInfo(code, 15);
+                Assert.IsFalse(string.IsNullOrWhiteSpace(s));
+                Console.WriteLine("15: " + s); // 계정계용 거래소 코드
+
+                Console.WriteLine("16: " + agent.GetOverseaStockInfo(s, 16)); // 계정계용 거래소+심볼코드를 풀코드로 변환
             });
         }
 

@@ -22,12 +22,13 @@ namespace ChampionOpenAPI_CSharp
     public partial class LogoutForm : UserControl
     {
         public event EventHandler LogoutEugeneFN;
-        private IChampionCommAgent axChampionCommAgent1;
-        private string g_sLoginId;
+        private readonly IChampionCommAgent axChampionCommAgent1;
+        private readonly string g_sLoginId;
 
         private string[] Lookup(string s)
         {
             IReadOnlyList<string> codeList = axChampionCommAgent1.GetCodeList();
+            
             return codeList.Where(x => x.Contains(s)).ToArray();
         }
 
