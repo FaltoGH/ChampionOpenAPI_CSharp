@@ -26,95 +26,31 @@ namespace ChampionOpenAPI_CSharp
     /// </summary>
     public partial class MainWindow : Window
     {
-        private int g_nVersionCheck;
-        private string g_sOpenAPI_PATH;
         private LoginForm loginForm;
         private bool versionCheckSuccessFlag;
+        private IChampionCommAgent agent;
 
         public MainWindow()
         {
             InitializeComponent();
-        }
-
-        protected override void OnKeyDown(System.Windows.Input.KeyEventArgs e)
-        {
-            base.OnKeyDown(e);
-#if DEBUG
-            if(e.Key == Key.Escape)
-            {
-                OnVersionCheckSuccess();
-            }
-#endif
-        }
-
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-
-            // https://stackoverflow.com/a/1926796/14367566
-            HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
-            source.AddHook(WndProc);
+            agent = new AxChampionCommAgent2();
         }
 
         private void Btn_VerChk_Click(object sender, EventArgs e)
         {
             this.Btn_VerChk.IsEnabled = false;
-
-            RegistryKey regkey = Registry.CurrentUser;
-            regkey = regkey.OpenSubKey("Software\\EugeneFN\\Champion", true);
-
-            if (regkey != null)
-            {
-                Object objVal = regkey.GetValue("PATH");
-                if (objVal != null)
-                {
-                    g_sOpenAPI_PATH = Convert.ToString(objVal);
-                }
-                else
-                {
-                    System.Windows.MessageBox.Show("OpenApi의 위치를 찾지 못했습니다.");
-                    this.Btn_VerChk.IsEnabled = true;
-                    return;
-                }
-            }
-            else
-            {
-                System.Windows.MessageBox.Show("프로그램의 위치를 찾지 못했습니다.");
-                this.Btn_VerChk.IsEnabled = true;
-                return;
-            }
-
-            Directory.SetCurrentDirectory(g_sOpenAPI_PATH);
-
-            String sRunPath = g_sOpenAPI_PATH + "\\ChampionOpenAPIVersionProcess.exe";
-            RunVersionCheckProcess(sRunPath);
-        }
-
-        // 프로그램 핸들 찾기(버전처리)
-        private void RunVersionCheckProcess(string file)
-        {
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = file;
-
-            // https://stackoverflow.com/questions/1556182/finding-the-handle-to-a-wpf-window
-            string arguments = "/" + new WindowInteropHelper(this).Handle;
-
-            startInfo.Arguments = arguments;
-
-            startInfo.UseShellExecute = true;
-            startInfo.Verb = "runas";
             try
             {
-                Process.Start(startInfo);
+                agent.VersionCheck(OnVersionCheckSuccess);
             }
-            catch (Win32Exception ex)
+            catch(Exception ex)
             {
                 System.Windows.MessageBox.Show(ex.ToString());
                 this.Btn_VerChk.IsEnabled = true;
             }
         }
 
-        private void OnVersionCheckSuccess()
+        private void OnVersionCheckSuccess(int x)
         {
             if (!this.versionCheckSuccessFlag)
             {
@@ -125,7 +61,7 @@ namespace ChampionOpenAPI_CSharp
                 this.loginForm = new LoginForm();
                 this.loginForm.LoginSuccess += LoginForm_LoginSuccess;
                 this.grid.Children.Add(loginForm);
-                this.loginForm.SetNVersionCheck(g_nVersionCheck);
+                this.loginForm.SetNVersionCheck(x, agent);
             }
         }
 
@@ -149,34 +85,6 @@ namespace ChampionOpenAPI_CSharp
         {
             this.grid.Children.Clear();
             this.grid.Children.Add(loginForm);
-        }
-
-        // 윈도우 메세지 수신(버전처리)
-        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        {
-            // Handle messages...
-            try
-            {
-                if (msg == 7422)  // 버전처리완료 메세지
-                {
-                    if ((int)lParam == 1)
-                        g_nVersionCheck = (int)wParam;
-                    else
-                        g_nVersionCheck = 0;
-
-                    if (g_nVersionCheck > 0)
-                    {
-                        OnVersionCheckSuccess();
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show(ex.ToString());
-                this.Btn_VerChk.IsEnabled = true;
-            }
-            return IntPtr.Zero;
         }
     }
 }

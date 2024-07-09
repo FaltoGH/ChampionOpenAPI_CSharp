@@ -18,6 +18,14 @@ namespace ChampionOpenAPI_CSharp
         [DispId(3)]
         int CommGetConnectState();
 
+        /// <summary>
+        /// Login.
+        /// </summary>
+        /// <param name="nVersionPassKey">버전처리 후 받은 키</param>
+        /// <param name="sUserID">사용자 아이디</param>
+        /// <param name="sPwd">비밀번호</param>
+        /// <param name="sCertPwd">공인인증서 비밀번호</param>
+        /// <returns>0 if success; otherwise, non-zero integer.</returns>
         [MethodImpl(MethodImplOptions.PreserveSig | MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
         [DispId(4)]
         int CommLogin(int nVersionPassKey, [MarshalAs(UnmanagedType.BStr)] string sUserID, [MarshalAs(UnmanagedType.BStr)] string sPwd, [MarshalAs(UnmanagedType.BStr)] string sCertPwd);
@@ -185,5 +193,8 @@ namespace ChampionOpenAPI_CSharp
         string GetOverseaStockInfo([MarshalAs(UnmanagedType.BStr)] string sCode, int nItemIndex);
 
         IReadOnlyList<string> GetCodeList();
+
+        void VersionCheck(Action<int> versionCheckCallback);
+
     }
 }

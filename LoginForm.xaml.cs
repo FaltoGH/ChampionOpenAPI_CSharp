@@ -22,7 +22,7 @@ namespace ChampionOpenAPI_CSharp
 {
     public partial class LoginForm : System.Windows.Controls.UserControl
     {
-        public AxChampionCommAgent2 axChampionCommAgent1;
+        public IChampionCommAgent axChampionCommAgent1;
 #pragma warning disable IDE0052 // Remove unread private members
 #pragma warning disable CS0414 // The field 'LoginForm.g_bLoginYN' is assigned but its value is never used
         private bool g_bLoginYN;
@@ -148,9 +148,9 @@ namespace ChampionOpenAPI_CSharp
             System.Windows.MessageBox.Show("주문 및 은행이체, 계좌간대체, 청약서비스 등 인증서가 반드시 필요한 거래는 이용하실 수 없습니다.", "시세전용으로 로그인");
         }
 
-        public void SetNVersionCheck(int g_nVersionCheck)
+        public void SetNVersionCheck(int g_nVersionCheck, IChampionCommAgent agent)
         {
-            this.axChampionCommAgent1 = new ChampionOpenAPI_CSharp.AxChampionCommAgent2();
+            this.axChampionCommAgent1 = agent;
 #if DEBUG
             if(g_nVersionCheck <= 0)
             {
