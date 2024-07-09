@@ -192,6 +192,10 @@ namespace ChampionOpenAPI_CSharp
         [return: MarshalAs(UnmanagedType.BStr)]
         string GetOverseaStockInfo([MarshalAs(UnmanagedType.BStr)] string sCode, int nItemIndex);
 
+        /// <summary>
+        /// 해외주식의 자체표준코드(expcode) 목록을 반환한다.
+        /// </summary>
+        /// <returns></returns>
         IReadOnlyList<string> GetCodeList();
 
         void VersionCheck(Action<int> versionCheckCallback);
