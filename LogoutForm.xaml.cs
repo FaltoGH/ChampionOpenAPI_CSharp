@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChampionOpenAPI_CSharp.Data;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,9 +28,9 @@ namespace ChampionOpenAPI_CSharp
 
         private string[] Lookup(string s)
         {
-            IReadOnlyList<string> codeList = axChampionCommAgent1.GetCodeList();
-            
-            return codeList.Where(x => x.Contains(s)).ToArray();
+            IReadOnlyList<OverseaStockInfo> list = axChampionCommAgent1.GetAllOverseaStockInfos();
+            OverseaStockInfo[] listw = list.Where(x => x.jmcode.Contains(s) || x.hname.Contains(s)).ToArray();
+            return Array.ConvertAll(listw, x=>x.ToString());
         }
 
         public LogoutForm(string g_sLoginId, IChampionCommAgent axChampionCommAgent1)

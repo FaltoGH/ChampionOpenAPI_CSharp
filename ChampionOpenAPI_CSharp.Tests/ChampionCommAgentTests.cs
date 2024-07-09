@@ -73,13 +73,17 @@ namespace ChampionOpenAPI_CSharp.Tests
             TestInside(agent =>
             {
                 IReadOnlyList<string> codeList = agent.GetCodeList();
+
+                // 0066AAMC
                 string code = codeList[2];
 
                 string shCode = agent.GetShCode(code);
+                // AMX_AAMC
                 Console.WriteLine("GetShCode=" + shCode);
 
                 Assert.AreEqual(code, agent.GetExpCode(shCode));
 
+                // not work
                 string name = agent.GetNameByCode(code);
                 Console.WriteLine("GetNameByCode=" + name);
 
@@ -95,15 +99,29 @@ namespace ChampionOpenAPI_CSharp.Tests
                 string s;
                 for(byte i = 5; i < 15; i++)
                 {
+/*
+5: 알티소스 에셋 매니지먼트
+6: ALTISOURCE ASSET MANAGEMENT CORP
+7: VI02153X1080
+8: 4540
+9: 1
+10: 00000001
+11: 4
+12: 1
+13: USD
+14: 20240709
+*/
                     s = agent.GetOverseaStockInfo(code, i);
                     Assert.IsFalse(string.IsNullOrWhiteSpace(s));
                     Console.WriteLine("{0}: {1}", i, s);
                 }
 
+                // 15: 020
                 s = agent.GetOverseaStockInfo(code, 15);
                 Assert.IsFalse(string.IsNullOrWhiteSpace(s));
                 Console.WriteLine("15: " + s); // 계정계용 거래소 코드
 
+                // not work
                 Console.WriteLine("16: " + agent.GetOverseaStockInfo(s, 16)); // 계정계용 거래소+심볼코드를 풀코드로 변환
             });
         }

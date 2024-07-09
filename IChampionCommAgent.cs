@@ -212,5 +212,6 @@ namespace ChampionOpenAPI_CSharp
 
         void VersionCheck(Action<int> versionCheckCallback);
 
+        IReadOnlyList<OverseaStockInfo> GetAllOverseaStockInfos();
     }
 }

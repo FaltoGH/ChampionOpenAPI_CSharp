@@ -22,6 +22,7 @@ namespace ChampionOpenAPI_CSharp
         private List<string> codeList;
         private Action<int> versionCheckCallback;
         private bool versionCheckAttempted;
+        private OverseaStockInfo[] allOverseaStockInfos;
 
         private class Control2 : Form
         {
@@ -216,5 +217,28 @@ namespace ChampionOpenAPI_CSharp
             ret.fullcode = GetOverseaStockInfo(sCode, 16);
             return ret;
         }
+
+        public IReadOnlyList<OverseaStockInfo> GetAllOverseaStockInfos()
+        {
+            if(allOverseaStockInfos != null)
+            {
+                return allOverseaStockInfos;
+            }
+
+            IReadOnlyList<string> codeList = GetCodeList();
+            allOverseaStockInfos = new OverseaStockInfo[codeList.Count];
+            this.Invoke((Action)delegate
+            {
+                for (int i = 0; i < codeList.Count; i++)
+                {
+                    string code = codeList[i];
+                    allOverseaStockInfos[i] = GetOverseaStockInfo(code);
+                }
+            });
+
+            return allOverseaStockInfos;
+        }
+
     }
+
 }
