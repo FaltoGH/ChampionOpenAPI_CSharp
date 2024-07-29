@@ -65,13 +65,14 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AxChampionCommAgent2.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ConcurrentRef.cs" />
+    <Compile Include="AxChampionCommAgent2.cs" />
+    <Compile Include="Concurrent.cs" />
     <Compile Include="Data\OverseaStockInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WndProcForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

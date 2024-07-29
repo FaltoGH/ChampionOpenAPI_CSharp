@@ -10,7 +10,6 @@ namespace ChampionOpenAPI_CSharp
     internal class Program
     {
 
-        [STAThread]
         private static void Main(string[] args)
         {
             AxChampionCommAgent2 agent = new AxChampionCommAgent2();

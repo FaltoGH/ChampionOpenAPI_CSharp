@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,69 +16,16 @@ using System.Windows.Interop;
 
 namespace ChampionOpenAPI_CSharp
 {
-    public class AxChampionCommAgent2 : AxChampionCommAgent
+
+    public class AxChampionCommAgent2
     {
-        private string apiAgentModulePath;
+
+        private AxChampionCommAgent __agent;
         private string gbcode_cod;
         private List<string> codeList;
         private OverseaStockInfo[] allOverseaStockInfos;
 
-        private class Control2 : Form
-        {
-            private Action<Message> wndProc;
-            public Control2(Action<Message> wndProc)
-            {
-                this.wndProc = wndProc;
-            }
-            protected override void WndProc(ref Message m)
-            {
-                wndProc?.Invoke(m);
-                base.WndProc(ref m);
-            }
-        }
-        
-        public AxChampionCommAgent2()
-        {
-            this.BeginInit();
-            Control2 parent = new Control2(wndProc);
-            parent.Controls.Add(this);
-            this.EndInit();
-        }
 
-        public override string GetApiAgentModulePath()
-        {
-            if(!string.IsNullOrWhiteSpace(apiAgentModulePath))
-            {
-                return apiAgentModulePath;
-            }
-
-            apiAgentModulePath = base.GetApiAgentModulePath();
-            if (!string.IsNullOrWhiteSpace(apiAgentModulePath))
-            {
-                return apiAgentModulePath;
-            }
-
-            RegistryKey regkey = Registry.CurrentUser;
-            regkey = regkey.OpenSubKey("Software\\EugeneFN\\Champion", true);
-            if (regkey == null)
-            {
-                throw new KeyNotFoundException("프로그램의 위치를 찾지 못했습니다.");
-            }
-            
-            Object objVal = regkey.GetValue("PATH");
-            if (objVal == null)
-            {
-                throw new DirectoryNotFoundException("OpenApi의 위치를 찾지 못했습니다.");
-            }
-
-            apiAgentModulePath = Convert.ToString(objVal);
-            if (string.IsNullOrWhiteSpace(apiAgentModulePath))
-            {
-                throw new NullReferenceException();
-            }
-
-            return apiAgentModulePath;
-        }
 
         public IReadOnlyList<string> GetCodeList()
         {
@@ -106,31 +54,11 @@ namespace ChampionOpenAPI_CSharp
             return codeList;
         }
 
-        // 프로그램 핸들 찾기(버전처리)
-        private void RunVersionCheckProcess(string file)
+        private const short VERSION_CHECKED = 0x1cfe;
+        private void WndProc(ref Message m)
         {
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = file;
-
-            IntPtr handle = Parent.Handle;
-            if (handle.ToInt32() <= 0)
-            {
-                throw new InvalidActiveXStateException();
-            }
-
-            string arguments = "/" + handle;
-
-            startInfo.Arguments = arguments;
-
-            startInfo.UseShellExecute = true;
-            startInfo.Verb = "runas";
-            Process.Start(startInfo);
-        }
-
-        // 윈도우 메세지 수신(버전처리)
-        private void wndProc(Message m)
-        {
-            if (m.Msg == 0x1cfe)  // 버전처리완료 메세지
+            Console.WriteLine("message: " + m);
+            if (m.Msg == VERSION_CHECKED)
             {
                 int g_nVersionCheck;
                 if ((int)m.LParam == 1)
@@ -146,78 +74,63 @@ namespace ChampionOpenAPI_CSharp
             }
         }
 
+        private string __s2359132;
+        public string GetApiAgentModulePath()
+        {
+            if (string.IsNullOrWhiteSpace(__s2359132))
+            {
+                RegistryKey regkey = Registry.CurrentUser;
+                regkey = regkey.OpenSubKey("Software\\EugeneFN\\Champion");
+                if (regkey == null)
+                {
+                    throw new KeyNotFoundException();
+                }
+                object objVal = regkey.GetValue("PATH");
+                if (objVal == null)
+                {
+                    throw new DirectoryNotFoundException();
+                }
+                __s2359132 = objVal.ToString();
+                if (string.IsNullOrWhiteSpace(__s2359132))
+                {
+                    throw new NullReferenceException();
+                }
+            }
+            return __s2359132;
+        }
+
         private bool __b1421533;
         private Concurrent<int> __versionCheckValue;
         public void VersionCheck(Concurrent<int> versionCheckValue)
         {
-            if (__b1421533)
+            new Thread(() =>
             {
-                throw new InvalidOperationException();
-            }
-
-            __versionCheckValue = versionCheckValue;
-
-            string path = GetApiAgentModulePath();
-            Directory.SetCurrentDirectory(path);
-
-            String sRunPath = Path.Combine(path, "ChampionOpenAPIVersionProcess.exe");
-            RunVersionCheckProcess(sRunPath);
-
-            __b1421533 = true;
-        }
-
-        public override int CommLogin(int nVersionPassKey, string sUserID, string sPwd, string sCertPwd)
-        {
-            if(nVersionPassKey <= 0)
-                throw new ArgumentOutOfRangeException();
-            return base.CommLogin(nVersionPassKey, sUserID, sPwd, sCertPwd);
-        }
-
-        public override int CommLoginPartner(int nVersionPassKey, string sUserID, string sPwd, string sCertPwd, string sPartnerCode)
-        {
-            if (nVersionPassKey <= 0)
-                throw new ArgumentOutOfRangeException();
-            return base.CommLoginPartner(nVersionPassKey, sUserID, sPwd, sCertPwd, sPartnerCode);
-        }
-
-        public OverseaStockInfo GetOverseaStockInfo(string sCode)
-        {
-            OverseaStockInfo ret;
-            ret.shortcode = GetOverseaStockInfo(sCode, 0);
-            ret.expcode = GetOverseaStockInfo(sCode, 1);
-            ret.hname = GetOverseaStockInfo(sCode, 5);
-            ret.ename = GetOverseaStockInfo(sCode, 6);
-            ret.isincode = GetOverseaStockInfo(sCode, 7);
-            ret.upcodes = GetOverseaStockInfo(sCode, 8);
-            ret.div_code = GetOverseaStockInfo(sCode, 9);
-            ret.tradeunit = GetOverseaStockInfo(sCode, 10);
-            ret.floatpoint = GetOverseaStockInfo(sCode, 11);
-            ret.ticktype = GetOverseaStockInfo(sCode, 12);
-            ret.currency = GetOverseaStockInfo(sCode, 13);
-            ret.bymd = GetOverseaStockInfo(sCode, 14);
-            ret.corebankingexchangecode = GetOverseaStockInfo(sCode, 15);
-            ret.fullcode = GetOverseaStockInfo(sCode, 16);
-            return ret;
-        }
-        public IReadOnlyList<OverseaStockInfo> GetAllOverseaStockInfos()
-        {
-            if(allOverseaStockInfos != null)
-            {
-                return allOverseaStockInfos;
-            }
-
-            IReadOnlyList<string> codeList = GetCodeList();
-            allOverseaStockInfos = new OverseaStockInfo[codeList.Count];
-            this.Invoke((Action)delegate
-            {
-                for (int i = 0; i < codeList.Count; i++)
+                if (__b1421533)
                 {
-                    string code = codeList[i];
-                    allOverseaStockInfos[i] = GetOverseaStockInfo(code);
+                    throw new InvalidOperationException();
                 }
-            });
-
-            return allOverseaStockInfos;
+                __versionCheckValue = versionCheckValue;
+                string path = GetApiAgentModulePath();
+                Directory.SetCurrentDirectory(path);
+                String sRunPath = Path.Combine(path, "ChampionOpenAPIVersionProcess.exe");
+                ProcessStartInfo startInfo = new ProcessStartInfo();
+                startInfo.FileName = sRunPath;
+                WndProcForm form = new WndProcForm(WndProc);
+                IntPtr handle = form.Handle;
+                if (handle.ToInt32() <= 0)
+                {
+                    throw new InvalidCastException();
+                }
+                Console.WriteLine("handle: " + handle);
+                string arguments = "/" + handle;
+                startInfo.Arguments = arguments;
+                startInfo.UseShellExecute = true;
+                startInfo.Verb = "runas";
+                Process.Start(startInfo);
+                __b1421533 = true;
+                System.Windows.Forms.Application.Run();
+            })
+            { IsBackground = true }.Start();
         }
 
     }
