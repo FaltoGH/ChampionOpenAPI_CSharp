@@ -15,13 +15,11 @@ using System.Windows.Interop;
 
 namespace ChampionOpenAPI_CSharp
 {
-    public class AxChampionCommAgent2 : AxChampionCommAgent, IChampionCommAgent
+    public class AxChampionCommAgent2 : AxChampionCommAgent
     {
         private string apiAgentModulePath;
         private string gbcode_cod;
         private List<string> codeList;
-        private Action<int> versionCheckCallback;
-        private bool versionCheckAttempted;
         private OverseaStockInfo[] allOverseaStockInfos;
 
         private class Control2 : Form
@@ -41,18 +39,9 @@ namespace ChampionOpenAPI_CSharp
         public AxChampionCommAgent2()
         {
             this.BeginInit();
-
             Control2 parent = new Control2(wndProc);
             parent.Controls.Add(this);
-
-#if DEBUG
-            Stopwatch sw = Stopwatch.StartNew();
-#endif
             this.EndInit();
-#if DEBUG
-            Console.WriteLine("[DEBUG] [AxChampionCommAgent2..ctor.EndInit] " + sw.Elapsed);
-            sw = null;
-#endif
         }
 
         public override string GetApiAgentModulePath()
@@ -129,10 +118,6 @@ namespace ChampionOpenAPI_CSharp
                 throw new InvalidActiveXStateException();
             }
 
-#if DEBUG
-            Console.WriteLine("[DEBUG] handle="+handle);
-#endif
-
             string arguments = "/" + handle;
 
             startInfo.Arguments = arguments;
@@ -143,15 +128,10 @@ namespace ChampionOpenAPI_CSharp
         }
 
         // 윈도우 메세지 수신(버전처리)
-        void wndProc(Message m)
+        private void wndProc(Message m)
         {
             if (m.Msg == 0x1cfe)  // 버전처리완료 메세지
             {
-
-#if DEBUG
-                Console.WriteLine("[DEBUG] [{0}] Version process done.", DateTime.Now.ToString("HH:mm:ss.fff"));
-#endif
-
                 int g_nVersionCheck;
                 if ((int)m.LParam == 1)
                     g_nVersionCheck = (int)m.WParam;
@@ -160,20 +140,22 @@ namespace ChampionOpenAPI_CSharp
 
                 if (g_nVersionCheck > 0)
                 {
-                    versionCheckCallback?.Invoke(g_nVersionCheck);
-                    versionCheckCallback = null;
+                    __versionCheckValue?.Set(g_nVersionCheck);
+                    __versionCheckValue = null;
                 }
             }
         }
 
-        public void VersionCheck(Action<int> versionCheckCallback)
+        private bool __b1421533;
+        private Concurrent<int> __versionCheckValue;
+        public void VersionCheck(Concurrent<int> versionCheckValue)
         {
-            if (versionCheckAttempted)
+            if (__b1421533)
             {
                 throw new InvalidOperationException();
             }
 
-            this.versionCheckCallback = versionCheckCallback;
+            __versionCheckValue = versionCheckValue;
 
             string path = GetApiAgentModulePath();
             Directory.SetCurrentDirectory(path);
@@ -181,7 +163,7 @@ namespace ChampionOpenAPI_CSharp
             String sRunPath = Path.Combine(path, "ChampionOpenAPIVersionProcess.exe");
             RunVersionCheckProcess(sRunPath);
 
-            versionCheckAttempted = true;
+            __b1421533 = true;
         }
 
         public override int CommLogin(int nVersionPassKey, string sUserID, string sPwd, string sCertPwd)
@@ -217,7 +199,6 @@ namespace ChampionOpenAPI_CSharp
             ret.fullcode = GetOverseaStockInfo(sCode, 16);
             return ret;
         }
-
         public IReadOnlyList<OverseaStockInfo> GetAllOverseaStockInfos()
         {
             if(allOverseaStockInfos != null)

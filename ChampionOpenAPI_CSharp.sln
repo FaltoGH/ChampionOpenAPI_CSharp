@@ -3,9 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChampionOpenAPI_CSharp", "ChampionOpenAPI_CSharp.csproj", "{201448D6-CCF7-4781-B8BE-68B3CCFAFC10}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChampionOpenAPI_CSharp.Tests", "ChampionOpenAPI_CSharp.Tests\ChampionOpenAPI_CSharp.Tests.csproj", "{8A8962D3-6BD3-4CA3-8795-A3578A982C80}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChampionOpenAPI_CSharp", "ChampionOpenAPI_CSharp\ChampionOpenAPI_CSharp.csproj", "{201448D6-CCF7-4781-B8BE-68B3CCFAFC10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +15,6 @@ Global
 		{201448D6-CCF7-4781-B8BE-68B3CCFAFC10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{201448D6-CCF7-4781-B8BE-68B3CCFAFC10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{201448D6-CCF7-4781-B8BE-68B3CCFAFC10}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8A8962D3-6BD3-4CA3-8795-A3578A982C80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8A8962D3-6BD3-4CA3-8795-A3578A982C80}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8A8962D3-6BD3-4CA3-8795-A3578A982C80}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8A8962D3-6BD3-4CA3-8795-A3578A982C80}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
