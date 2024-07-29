@@ -17,43 +17,8 @@ using System.Windows.Interop;
 namespace ChampionOpenAPI_CSharp
 {
 
-    public class AxChampionCommAgent2
+    public class AxChampionCommAgent2 : IDisposable
     {
-
-        private AxChampionCommAgent __agent;
-        private string gbcode_cod;
-        private List<string> codeList;
-        private OverseaStockInfo[] allOverseaStockInfos;
-
-
-
-        public IReadOnlyList<string> GetCodeList()
-        {
-            if (gbcode_cod == null)
-            {
-                gbcode_cod = Path.Combine(GetApiAgentModulePath(), "mst", "gbcode.cod");
-                if (!File.Exists(gbcode_cod))
-                {
-                    throw new FileNotFoundException();
-                }
-            }
-            if (codeList == null)
-            {
-                codeList = new List<string>();
-                string[] allLines = File.ReadAllLines(gbcode_cod);
-                foreach (var line in allLines)
-                {
-                    string code = line.Substring(0, 20);
-                    if (!string.IsNullOrWhiteSpace(code))
-                    {
-                        code = code.Trim();
-                        this.codeList.Add(code);
-                    }
-                }
-            }
-            return codeList;
-        }
-
         private const short VERSION_CHECKED = 0x1cfe;
         private void WndProc(ref Message m)
         {
@@ -68,8 +33,7 @@ namespace ChampionOpenAPI_CSharp
 
                 if (g_nVersionCheck > 0)
                 {
-                    __versionCheckValue?.Set(g_nVersionCheck);
-                    __versionCheckValue = null;
+                    __versionCheckValue.Set(g_nVersionCheck);
                 }
             }
         }
@@ -100,8 +64,8 @@ namespace ChampionOpenAPI_CSharp
         }
 
         private bool __b1421533;
-        private Concurrent<int> __versionCheckValue;
-        public void VersionCheck(Concurrent<int> versionCheckValue)
+        private readonly Concurrent<int> __versionCheckValue = new Concurrent<int>();
+        public void VersionCheck()
         {
             new Thread(() =>
             {
@@ -109,7 +73,6 @@ namespace ChampionOpenAPI_CSharp
                 {
                     throw new InvalidOperationException();
                 }
-                __versionCheckValue = versionCheckValue;
                 string path = GetApiAgentModulePath();
                 Directory.SetCurrentDirectory(path);
                 String sRunPath = Path.Combine(path, "ChampionOpenAPIVersionProcess.exe");
@@ -131,8 +94,67 @@ namespace ChampionOpenAPI_CSharp
                 System.Windows.Forms.Application.Run();
             })
             { IsBackground = true }.Start();
+            __versionCheckValue.WaitWhile(x => x == 0);
         }
 
+        private AxChampionCommAgent __agent;
+        public int Login(string userID, string pwd, string certPwd)
+        {
+            AutoResetEvent are = new AutoResetEvent(false);
+            Thread t = new Thread(() =>
+            {
+                __agent = new AxChampionCommAgent();
+                __agent.BeginInit();
+                new Control().Controls.Add(__agent);
+                __agent.EndInit();
+                are.Set();
+                System.Windows.Forms.Application.Run();
+            })
+            { IsBackground = true };
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
+            are.WaitOne(0x3f3f3f3f);
+            return __agent.CommLogin(__versionCheckValue.Get(), userID, pwd, certPwd);
+        }
+
+        private string __s3519352;
+        private string GetGbcodeCod()
+        {
+            if (__s3519352 == null)
+            {
+                __s3519352 = Path.Combine(GetApiAgentModulePath(), "mst", "gbcode.cod");
+                if (!File.Exists(__s3519352))
+                {
+                    throw new FileNotFoundException();
+                }
+            }
+            return __s3519352;
+        }
+
+        private List<string> __ls3259135;
+        public List<string> GetCodeList()
+        {
+            if (__ls3259135 == null)
+            {
+                __ls3259135 = new List<string>();
+                string[] allLines = File.ReadAllLines(GetGbcodeCod());
+                foreach (var line in allLines)
+                {
+                    string code = line.Substring(0, 20);
+                    if (!string.IsNullOrWhiteSpace(code))
+                    {
+                        code = code.Trim();
+                        __ls3259135.Add(code);
+                    }
+                }
+            }
+            return __ls3259135;
+        }
+
+        public void Dispose()
+        {
+            __agent?.Dispose();
+        }
     }
 
 }
