@@ -24,9 +24,9 @@ namespace ChampionOpenAPI_CSharp
             }
         }
 
-        public static T[] Sample<T>(Random rng, T[] array, int count)
+        public static T[] Sample<T>(Random rng, IList<T> array, int count)
         {
-            int[] range = Enumerable.Range(0, array.Length).ToArray();
+            int[] range = Enumerable.Range(0, array.Count).ToArray();
             Shuffle(rng, range);
             T[] ret = new T[count];
             for(int i = 0; i < count; i++)

@@ -45,30 +45,38 @@ namespace ChampionOpenAPI_CSharp
                     pass += keyInfo.KeyChar;
                 }
             } while (key != ConsoleKey.Enter);
+            Console.WriteLine();
             return pass;
         }
 
         private bool Login()
         {
-            Console.Write("Login? (y/n)");
-            if (Console.ReadLine() != "y")
+            while (true)
             {
-                return false;
+                Console.Write("Login? (y/n)");
+                if (Console.ReadLine() != "y")
+                {
+                    return false;
+                }
+                Console.Write("User ID: ");
+                string id = Console.ReadLine();
+                Console.Write("Password: ");
+                string pwd = ReadPwd().ToString();
+                int ret = agent.Login(id, pwd, null);
+                Console.WriteLine("Login returned " + ret);
+                if (ret == 0)
+                {
+                    return true;
+                }
+                Console.WriteLine(agent.GetLastErrMsg());
             }
-            Console.Write("User ID: ");
-            string id = Console.ReadLine();
-            Console.Write("Password: ");
-            string pwd = ReadPwd().ToString();
-            int ret = agent.Login(id, pwd, null);
-            Console.WriteLine("Login returned " + ret);
-            return true;
         }
 
         private void PrintCodeList()
         {
             List<string> codeList = agent.GetCodeList();
             Console.WriteLine(codeList.Count + " codes");
-            string[] sample = RandomHelper.Sample(rng, codeList.ToArray(), 9);
+            string[] sample = RandomHelper.Sample(rng, codeList, 9);
             Console.WriteLine("Random sample codes are:");
             for (byte i = 0; i < 9; i++)
             {
@@ -76,26 +84,36 @@ namespace ChampionOpenAPI_CSharp
             }
         }
 
+        private void PrintChart()
+        {
+            string jmcode = Console.ReadLine();
+            agent.
+        }
+
         public Program()
         {
             agent = new AxChampionCommAgent2();
             if (!VersionCheck()) return;
-            if(!Login()) return;
+            if (!Login()) return;
         cmd:
             Console.WriteLine("vvvvvvvvvvvvvvvv");
-            Console.WriteLine("Type a number.");
-            Console.WriteLine("0: Exit");
-            Console.WriteLine("1: Print code list");
+            Console.WriteLine("Input one of the following commands:");
+            Console.WriteLine("exit");
+            Console.WriteLine("codelst");
+            Console.WriteLine("chart");
             Console.WriteLine("^^^^^^^^^^^^^^^^");
             Console.Write(">>> ");
             string cmd = Console.ReadLine();
             switch (cmd)
             {
-                case "0":
+                case "exit":
                     agent.Dispose();
                     return;
-                case "1":
+                case "codelst":
                     PrintCodeList();
+                    break;
+                case "chart":
+                    PrintChart();
                     break;
                 default:
                     break;

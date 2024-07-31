@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Interop;
+using static System.Runtime.CompilerServices.RuntimeHelpers;
 
 namespace ChampionOpenAPI_CSharp
 {
@@ -98,6 +99,8 @@ namespace ChampionOpenAPI_CSharp
         }
 
         private AxChampionCommAgent __agent;
+        private bool __isLoginSuccess;
+        private string __loginedUserID;
         public int Login(string userID, string pwd, string certPwd)
         {
             AutoResetEvent are = new AutoResetEvent(false);
@@ -114,7 +117,18 @@ namespace ChampionOpenAPI_CSharp
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
             are.WaitOne(0x3f3f3f3f);
-            return __agent.CommLogin(__versionCheckValue.Get(), userID, pwd, certPwd);
+            int ret= __agent.CommLogin(__versionCheckValue.Get(), userID, pwd, certPwd);
+            if (ret == 0)
+            {
+                __loginedUserID = userID;
+                __isLoginSuccess = true;
+            }
+            return ret;
+        }
+
+        public string GetLastErrMsg()
+        {
+            return __agent.GetLastErrMsg();
         }
 
         private string __s3519352;
@@ -153,7 +167,85 @@ namespace ChampionOpenAPI_CSharp
 
         public void Dispose()
         {
-            __agent?.Dispose();
+            if (__agent != null)
+            {
+                if (__isLoginSuccess)
+                {
+                    __agent?.CommLogout(__loginedUserID);
+                }
+                __agent?.AllUnRegisterReal();
+                __agent?.CommTerminate(1);
+                __agent?.Dispose();
+            }
+        }
+
+        public string gbdayf(string strSCODE, string strCTP)
+        {
+            int nRqID = __agent.CreateRequestID();
+            __agent.SetTranInputData(nRqID, "gbday", "InRec1", "SCODE", strSCODE);
+            __agent.SetTranInputData(nRqID, "gbday", "InRec1", "CTP", strCTP);
+
+            string strIsBenefit;   //수익증권여부 
+            string strPrevOrNext;  //이전,다음 데이터 조회 구분
+            string strPrevNextKey; //이전,다음 구분값
+            string strScreenNo;    //화면 번호
+            string strTranType;    //Tran 구분값
+            int nRequestCount;  //최대 조회 데이터 건수
+
+            strIsBenefit = "N"; //수익증권여부 'N'입력
+            strPrevOrNext = "0";    //기본:0, 이전:1, 다음:2
+            strPrevNextKey = "";    //기본은 키값이 없음
+            strScreenNo = "1000";   //임시로 1000을 입력
+            strTranType = "1";  //Tran = 1, Fid = 2
+            nRequestCount = 20;   //임시로 20개을 입력
+
+            __agent.RequestTran(nRqID, "gbday", strIsBenefit, strPrevOrNext, strPrevNextKey, strScreenNo, strTranType, nRequestCount);
+
+
+
+
+
+            /****************************************************************************************
+             개발 편의를 위한 CommAgent 조회응답 OnGetTranData 이벤트 함수처리 MFC 소스 템플릿
+             O U T - P U T
+             ****************************************************************************************/
+            int nRqID = nRequestId; //서버로 부터 받은 RqID 값
+            LPCTSTR sData = pBlock; //서버로 부터 받은 데이터 포인터값
+            int nDataLen = nBlockLength;    //서버로 부터 받은 데이터 길이값
+
+            CStringArray strArrLDATE;       //일자
+            CStringArray strArrCPCHECK;     //전일대비부호
+            CStringArray strArrLDIFF;       //전일대비
+            CStringArray strArrLDIFFRATIO;      //대비율
+            CStringArray strArrLCPRICE;     //현재가
+            CStringArray strArrLVOLUME;     //누적거래량
+            CStringArray strArrLVALUE;      //누적거래대금
+            CStringArray strArrLOPRICE;     //시가
+            CStringArray strArrLHPRICE;     //고가
+            CStringArray strArrLLPRICE;     //저가
+            CStringArray strArrLBPRICE;     //기준가
+
+
+            데이터 건수를 얻어온다.
+int nDataCnt = m_CommAgent.GetTranOutputRowCnt(gbday, OutRec1);
+
+            for (int nPos = 0; nPos < nDataCnt; nPos++)
+            {
+                strArrLDATE.Add(m_CommAgent.GetTranOutputData(gbday, OutRec1, LDATE, nPos));
+                strArrCPCHECK.Add(m_CommAgent.GetTranOutputData(gbday, OutRec1, CPCHECK, nPos));
+                strArrLDIFF.Add(m_CommAgent.GetTranOutputData(gbday, OutRec1, LDIFF, nPos));
+                strArrLDIFFRATIO.Add(m_CommAgent.GetTranOutputData(gbday, OutRec1, LDIFFRATIO, nPos));
+                strArrLCPRICE.Add(m_CommAgent.GetTranOutputData(gbday, OutRec1, LCPRICE, nPos));
+                strArrLVOLUME.Add(m_CommAgent.GetTranOutputData(gbday, OutRec1, LVOLUME, nPos));
+                strArrLVALUE.Add(m_CommAgent.GetTranOutputData(gbday, OutRec1, LVALUE, nPos));
+                strArrLOPRICE.Add(m_CommAgent.GetTranOutputData(gbday, OutRec1, LOPRICE, nPos));
+                strArrLHPRICE.Add(m_CommAgent.GetTranOutputData(gbday, OutRec1, LHPRICE, nPos));
+                strArrLLPRICE.Add(m_CommAgent.GetTranOutputData(gbday, OutRec1, LLPRICE, nPos));
+                strArrLBPRICE.Add(m_CommAgent.GetTranOutputData(gbday, OutRec1, LBPRICE, nPos));
+            }
+
+
+            m_CommAgent.ReleaseRqId(nRqID);	//서버로 부터 받은 RqID 해제한다.
         }
     }
 
