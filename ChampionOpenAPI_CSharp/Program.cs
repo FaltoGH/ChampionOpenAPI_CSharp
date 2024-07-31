@@ -62,7 +62,9 @@ namespace ChampionOpenAPI_CSharp
                 string id = Console.ReadLine();
                 Console.Write("Password: ");
                 string pwd = ReadPwd().ToString();
-                int ret = agent.Login(id, pwd, null);
+                Console.Write("Certificate Password: ");
+                string certpwd = ReadPwd().ToString();
+                int ret = agent.Login(id, pwd, certpwd);
                 Console.WriteLine("Login returned " + ret);
                 if (ret == 0)
                 {
@@ -86,8 +88,13 @@ namespace ChampionOpenAPI_CSharp
 
         private void PrintChart()
         {
-            string jmcode = Console.ReadLine();
-            agent.
+            //TODO
+            //string jmcode = Console.ReadLine();
+        }
+
+        private void GetAccInfo()
+        {
+            Console.WriteLine(agent.GetAccInfo());
         }
 
         public Program()
@@ -101,6 +108,7 @@ namespace ChampionOpenAPI_CSharp
             Console.WriteLine("exit");
             Console.WriteLine("codelst");
             Console.WriteLine("chart");
+            Console.WriteLine("GetAccInfo");
             Console.WriteLine("^^^^^^^^^^^^^^^^");
             Console.Write(">>> ");
             string cmd = Console.ReadLine();
@@ -114,6 +122,9 @@ namespace ChampionOpenAPI_CSharp
                     break;
                 case "chart":
                     PrintChart();
+                    break;
+                case "GetAccInfo":
+                    GetAccInfo();
                     break;
                 default:
                     break;

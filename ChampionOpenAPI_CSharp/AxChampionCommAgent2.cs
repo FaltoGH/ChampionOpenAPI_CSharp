@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -174,11 +175,16 @@ namespace ChampionOpenAPI_CSharp
                     __agent?.CommLogout(__loginedUserID);
                 }
                 __agent?.AllUnRegisterReal();
-                __agent?.CommTerminate(1);
+                try
+                {
+                    __agent?.CommTerminate(1);
+                }
+                catch (COMException) { }
                 __agent?.Dispose();
             }
         }
 
+#if false
         public string gbdayf(string strSCODE, string strCTP)
         {
             int nRqID = __agent.CreateRequestID();
@@ -247,6 +253,13 @@ int nDataCnt = m_CommAgent.GetTranOutputRowCnt(gbday, OutRec1);
 
             m_CommAgent.ReleaseRqId(nRqID);	//서버로 부터 받은 RqID 해제한다.
         }
+#endif
+
+        public string GetAccInfo()
+        {
+            return __agent.GetAccInfo();
+        }
+
     }
 
 }
