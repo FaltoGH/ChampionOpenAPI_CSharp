@@ -88,8 +88,9 @@ namespace ChampionOpenAPI_CSharp
 
         private void PrintChart()
         {
-            //TODO
-            //string jmcode = Console.ReadLine();
+            Console.Write("Enter code of jongmok: ");
+            string jmcode = Console.ReadLine();
+
         }
 
         private void GetAccInfo()

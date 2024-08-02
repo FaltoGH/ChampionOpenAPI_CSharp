@@ -95,7 +95,7 @@ namespace ChampionOpenAPI_CSharp
                 __b1421533 = true;
                 System.Windows.Forms.Application.Run();
             })
-            { IsBackground = true }.Start();
+            { IsBackground = true, Name = "wndpro" }.Start();
             __versionCheckValue.WaitWhile(x => x == 0);
         }
 
@@ -184,7 +184,7 @@ namespace ChampionOpenAPI_CSharp
             }
         }
 
-#if false
+
         public string gbdayf(string strSCODE, string strCTP)
         {
             int nRqID = __agent.CreateRequestID();
@@ -253,7 +253,6 @@ int nDataCnt = m_CommAgent.GetTranOutputRowCnt(gbday, OutRec1);
 
             m_CommAgent.ReleaseRqId(nRqID);	//서버로 부터 받은 RqID 해제한다.
         }
-#endif
 
         public string GetAccInfo()
         {
