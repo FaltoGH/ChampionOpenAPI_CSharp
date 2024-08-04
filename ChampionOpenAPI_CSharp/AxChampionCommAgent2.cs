@@ -82,9 +82,8 @@ namespace ChampionOpenAPI_CSharp
                 IntPtr handle = form.Handle;
                 if (handle.ToInt32() <= 0)
                 {
-                    throw new InvalidCastException();
+                    throw new ArgumentOutOfRangeException();
                 }
-                Console.WriteLine("handle: 0x" + handle.ToString("x"));
                 string arguments = "/" + handle;
                 startInfo.Arguments = arguments;
                 startInfo.UseShellExecute = true;
@@ -113,11 +112,11 @@ namespace ChampionOpenAPI_CSharp
                 __agent.OnGetTranData += __agent_OnGetTranData;
                 System.Windows.Forms.Application.Run();
             })
-            { IsBackground = true };
+            { IsBackground = true, Name = "axt" };
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
-            are.WaitOne(0x3f3f3f3f);
-            int ret= __agent.CommLogin(__versionCheckValue.Get(), userID, pwd, certPwd);
+            if (!are.WaitOne(0x3f3f3f3f)) throw new TimeoutException();
+            int ret = __agent.CommLogin(__versionCheckValue.Get(), userID, pwd, certPwd);
             if (ret == 0)
             {
                 __loginedUserID = userID;
