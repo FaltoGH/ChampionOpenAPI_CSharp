@@ -64,13 +64,14 @@ namespace ChampionOpenAPI_CSharp
                 string pwd = ReadPwd().ToString();
                 Console.Write("Certificate Password: ");
                 string certpwd = ReadPwd().ToString();
+                if (string.IsNullOrWhiteSpace(certpwd)) certpwd = null;
                 int ret = agent.Login(id, pwd, certpwd);
                 Console.WriteLine("Login returned " + ret);
                 if (ret == 0)
                 {
                     return true;
                 }
-                Console.WriteLine(agent.GetLastErrMsg());
+                Console.WriteLine("LastErrMsg: " + agent.GetLastErrMsg());
             }
         }
 
@@ -90,7 +91,7 @@ namespace ChampionOpenAPI_CSharp
         {
             Console.Write("Enter code of jongmok: ");
             string jmcode = Console.ReadLine();
-
+            agent.gbdayf(jmcode, "1");
         }
 
         private void GetAccInfo()
