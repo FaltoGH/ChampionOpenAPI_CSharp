@@ -91,7 +91,11 @@ namespace ChampionOpenAPI_CSharp
         {
             Console.Write("Enter code of jongmok: ");
             string jmcode = Console.ReadLine();
-            agent.gbdayf(jmcode, "1");
+            gbdays[] gbdayss = agent.gbdayf(jmcode, "1");
+            for(int i = 0; i < gbdayss.Length; i++)
+            {
+                Console.WriteLine(gbdayss[i]);
+            }
         }
 
         private void GetAccInfo()
@@ -129,6 +133,7 @@ namespace ChampionOpenAPI_CSharp
                     GetAccInfo();
                     break;
                 default:
+                    Console.WriteLine("Unknown command.");
                     break;
             }
             goto cmd;
