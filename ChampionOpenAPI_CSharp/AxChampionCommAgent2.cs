@@ -220,10 +220,23 @@ namespace ChampionOpenAPI_CSharp
             string sMsg = agent.GetCommRecvOptionValue(4);    // 응답 메세지
             string sSubMsg = agent.GetCommRecvOptionValue(5);    // 부가 메세지
             string sErrCode = agent.GetCommRecvOptionValue(7);    // 에러여부
+            Console.WriteLine("OnGetTranData: sTrCode={0} sNextGb={1} sNextKey={2} sMsg={3} sSubMsg={4} sErrCode={5}",
+                sTrCode, sNextGb, sNextKey, sMsg, sSubMsg, sErrCode);
+
             if (sTrCode == gbday)
             {
                 agent_OnGetTranData_gbday();
             }
+        }
+
+        private int SetTranInputDatas(int nRqId, string strTrCode, string strRecName, params string[] strItemValues)
+        {
+            int ret = 0;
+            for(sbyte i = 0; i < strItemValues.Length - 1; i += 2)
+            {
+                ret |= agent.SetTranInputData(nRqId, strTrCode, strRecName, strItemValues[i], strItemValues[i + 1]);
+            }
+            return ret;
         }
 
         private const string gbday = "gbday";
@@ -236,10 +249,9 @@ namespace ChampionOpenAPI_CSharp
         public gbdays[] gbdayf(string strSCODE, string strCTP, short nRequestCount)
         {
             int nRqID = agent.CreateRequestID();
-            agent.SetTranInputData(nRqID, gbday, InRec1, "SCODE", strSCODE);
-            agent.SetTranInputData(nRqID, gbday, InRec1, "CTP", strCTP);
+            SetTranInputDatas(nRqID, gbday, InRec1, "SCODE", strSCODE, "CTP", strCTP);
             gbdayare.Reset();
-            int nRtn = agent.RequestTran(nRqID, gbday, "", nRequestCount);
+            int nRtn = agent.RequestTran(nRqID, gbday, null, nRequestCount);
             if (nRtn < 1)
             {
                 Console.WriteLine("error: gbdayf return " + nRtn);
