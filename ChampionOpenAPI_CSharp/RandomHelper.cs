@@ -8,7 +8,7 @@ namespace ChampionOpenAPI_CSharp
 {
     public static class RandomHelper
     {
-
+        //theta(n)
         public static void Shuffle<T>(Random rng, T[] array)
         {
             int n = array.Length;
@@ -24,6 +24,7 @@ namespace ChampionOpenAPI_CSharp
             }
         }
 
+        //theta(n)
         public static T[] Sample<T>(Random rng, IList<T> array, int count)
         {
             int[] range = Enumerable.Range(0, array.Count).ToArray();

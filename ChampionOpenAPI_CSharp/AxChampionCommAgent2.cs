@@ -215,6 +215,11 @@ namespace ChampionOpenAPI_CSharp
         private void agent_OnGetTranData(object sender, _DChampionCommAgentEvents_OnGetTranDataEvent e)
         {
             string sTrCode = agent.GetCommRecvOptionValue(0); // TR 코드
+            string sNextGb = agent.GetCommRecvOptionValue(1);    // 이전/다음 조회구분(0:없음, 4:다음없음, 5:다음없음, 6:다음있음, 7:다음있음)
+            string sNextKey = agent.GetCommRecvOptionValue(2);    // 연속조회키
+            string sMsg = agent.GetCommRecvOptionValue(4);    // 응답 메세지
+            string sSubMsg = agent.GetCommRecvOptionValue(5);    // 부가 메세지
+            string sErrCode = agent.GetCommRecvOptionValue(7);    // 에러여부
             if (sTrCode == gbday)
             {
                 agent_OnGetTranData_gbday();
@@ -228,15 +233,16 @@ namespace ChampionOpenAPI_CSharp
         /// </summary>
         /// <param name="strSCODE">종목코드|20|거래소코드(4)+심볼(16)</param>
         /// <param name="strCTP">수정주가여부|1|0:미적용 1:적용</param>
-        public gbdays[] gbdayf(string strSCODE, string strCTP)
+        public gbdays[] gbdayf(string strSCODE, string strCTP, short nRequestCount)
         {
             int nRqID = agent.CreateRequestID();
             agent.SetTranInputData(nRqID, gbday, InRec1, "SCODE", strSCODE);
             agent.SetTranInputData(nRqID, gbday, InRec1, "CTP", strCTP);
             gbdayare.Reset();
-            int nRtn = agent.RequestTran(nRqID, gbday, "", 20);
+            int nRtn = agent.RequestTran(nRqID, gbday, "", nRequestCount);
             if (nRtn < 1)
             {
+                Console.WriteLine("error: gbdayf return " + nRtn);
                 return null;
             }
             if (!gbdayare.WaitOne(INF))
