@@ -20,6 +20,7 @@ namespace ChampionOpenAPI_CSharp
     public class AxChampionCommAgent2 : IDisposable
     {
         private const short VERSION_CHECKED = 0x1cfe;
+        private const int INF = 0x3f3f3f3f;
         private void WndProc(ref Message m)
         {
             Console.WriteLine("message: " + m);
@@ -116,7 +117,7 @@ namespace ChampionOpenAPI_CSharp
                 { IsBackground = true, Name = "axt" };
                 t.SetApartmentState(ApartmentState.STA);
                 t.Start();
-                if (!are.WaitOne(0x3f3f3f3f)) { throw new TimeoutException(); }
+                if (!are.WaitOne(INF)) { throw new TimeoutException(); }
             }
             int ret = agent.CommLogin(__versionCheckValue.Get(), userID, pwd, certPwd);
             if (ret == 0)
@@ -238,7 +239,7 @@ namespace ChampionOpenAPI_CSharp
             {
                 return null;
             }
-            if (!gbdayare.WaitOne(0x3f3f3f3f))
+            if (!gbdayare.WaitOne(INF))
             {
                 throw new TimeoutException();
             }

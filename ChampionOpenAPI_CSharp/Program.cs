@@ -133,7 +133,8 @@ namespace ChampionOpenAPI_CSharp
                     GetAccInfo();
                     break;
                 default:
-                    Console.WriteLine("Unknown command.");
+                    if(!string.IsNullOrWhiteSpace(cmd))
+                        Console.WriteLine("Unknown command.");
                     break;
             }
             goto cmd;
