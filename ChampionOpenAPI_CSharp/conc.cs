@@ -7,15 +7,14 @@ using System.Threading.Tasks;
 
 namespace ChampionOpenAPI_CSharp
 {
-
-    public class Concurrent<T>
+    public class conc<T>
     {
         private T __value;
         private readonly object __lock = new object();
 
-        public Concurrent() { }
+        public conc() { }
 
-        public Concurrent(T value)
+        public conc(T value)
         {
             __value = value;
         }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ChampionOpenAPI_CSharp
 {
-    public static class RandomHelper
+    public static class rand
     {
         //theta(n)
         public static void Shuffle<T>(Random rng, T[] array)

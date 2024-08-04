@@ -8,12 +8,12 @@ using System.Windows.Forms;
 namespace ChampionOpenAPI_CSharp
 {
 
-    public delegate void WndProcDelegate(ref Message m);
+    public delegate void wpdele(ref Message m);
 
-    public class WndProcForm:Form
+    public class relaywp:Form
     {
-        private readonly WndProcDelegate __wndProc;
-        public WndProcForm(WndProcDelegate wndProc)
+        private readonly wpdele __wndProc;
+        public relaywp(wpdele wndProc)
         {
             __wndProc = wndProc;
         }

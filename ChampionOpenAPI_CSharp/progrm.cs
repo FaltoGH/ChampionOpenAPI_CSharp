@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 namespace ChampionOpenAPI_CSharp
 {
 
-    internal class Program
+    internal class progrm
     {
         public static readonly Random rng = new Random();
-        private readonly AxChampionCommAgent2 agent;
+        private readonly axcca2 agent;
 
         private bool VersionCheck()
         {
@@ -79,7 +79,7 @@ namespace ChampionOpenAPI_CSharp
         {
             List<string> codeList = agent.GetCodeList();
             Console.WriteLine(codeList.Count + " codes");
-            string[] sample = RandomHelper.Sample(rng, codeList, 9);
+            string[] sample = rand.Sample(rng, codeList, 9);
             Console.WriteLine("Random sample codes are:");
             for (byte i = 0; i < 9; i++)
             {
@@ -93,11 +93,11 @@ namespace ChampionOpenAPI_CSharp
             string jmcode = Console.ReadLine();
             Console.Write("Enter request count: ");
             short nRequestCount = short.Parse(Console.ReadLine());
-            gbdayfr gbdayss = agent.gbdayf(jmcode, "1", nRequestCount, null);
+            gbdayfr gbdayss = agent.gbdayf2(jmcode, "1", nRequestCount);
             if (gbdayss.success)
             {
                 Console.WriteLine(gbdayss.gbdayss.Count + " gbdays were fetched.");
-                gbdays[] gbdaysss = RandomHelper.Sample(rng, gbdayss.gbdayss, 9);
+                gbdays[] gbdaysss = rand.Sample(rng, gbdayss.gbdayss, 9);
                 for (int i = 0; i < gbdaysss.Length; i++)
                 {
                     Console.WriteLine(gbdaysss[i]);
@@ -111,9 +111,9 @@ namespace ChampionOpenAPI_CSharp
             Console.WriteLine(agent.GetAccInfo());
         }
 
-        public Program()
+        public progrm()
         {
-            agent = new AxChampionCommAgent2();
+            agent = new axcca2();
             if (!VersionCheck()) return;
             if (!Login()) return;
         cmd:
@@ -150,7 +150,7 @@ namespace ChampionOpenAPI_CSharp
 
         private static void Main(string[] args)
         {
-            new Program();
+            new progrm();
         }
     }
 

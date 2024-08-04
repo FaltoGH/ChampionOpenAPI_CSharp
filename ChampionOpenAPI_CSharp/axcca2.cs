@@ -17,7 +17,7 @@ using System.Windows.Interop;
 namespace ChampionOpenAPI_CSharp
 {
 
-    public class AxChampionCommAgent2 : IDisposable
+    public class axcca2 : IDisposable
     {
         private const short VERSION_CHECKED = 0x1cfe;
         private const int INF = 0x3f3f3f3f;
@@ -65,7 +65,7 @@ namespace ChampionOpenAPI_CSharp
         }
 
         private bool __b1421533;
-        private readonly Concurrent<int> __versionCheckValue = new Concurrent<int>();
+        private readonly conc<int> __versionCheckValue = new conc<int>();
         public void VersionCheck()
         {
             new Thread(() =>
@@ -79,7 +79,7 @@ namespace ChampionOpenAPI_CSharp
                 String sRunPath = Path.Combine(path, "ChampionOpenAPIVersionProcess.exe");
                 ProcessStartInfo startInfo = new ProcessStartInfo();
                 startInfo.FileName = sRunPath;
-                WndProcForm form = new WndProcForm(WndProc);
+                relaywp form = new relaywp(WndProc);
                 IntPtr handle = form.Handle;
                 if (handle.ToInt32() <= 0)
                 {
@@ -277,6 +277,32 @@ namespace ChampionOpenAPI_CSharp
             ret.gbdayss = this.gbdayss;
             ret.sNextKey = this.sNextKey;
             ret.success = true;
+            return ret;
+        }
+
+        /// <summary>
+        /// 해외주식 일별 정보
+        /// </summary>
+        /// <param name="strSCODE">종목코드|20|거래소코드(4)+심볼(16)</param>
+        /// <param name="strCTP">수정주가여부|1|0:미적용 1:적용</param>
+        public gbdayfr gbdayf2(string strSCODE, string strCTP, short nRequestCount)
+        {
+            gbdayfr ret = gbdayf(strSCODE, strCTP, nRequestCount, null);
+
+            while (ret.Count < nRequestCount && ret.sNextKey != null)
+            {
+                //call gbdayf
+                gbdayfr ret2 = gbdayf(strSCODE, strCTP, nRequestCount, ret.sNextKey);
+                if (!ret2.success)
+                {
+                    break;
+                }
+                ret.gbdayss.AddRange(ret2.gbdayss);
+                ret.nRtn = ret2.nRtn;
+                ret.sNextKey = ret2.sNextKey;
+                Thread.Sleep(127);
+            }
+
             return ret;
         }
 
