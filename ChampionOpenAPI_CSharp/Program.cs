@@ -93,15 +93,16 @@ namespace ChampionOpenAPI_CSharp
             string jmcode = Console.ReadLine();
             Console.Write("Enter request count: ");
             short nRequestCount = short.Parse(Console.ReadLine());
-            gbdays[] gbdayss = agent.gbdayf(jmcode, "1", nRequestCount);
-            if (gbdayss != null)
+            gbdayfr gbdayss = agent.gbdayf(jmcode, "1", nRequestCount, null);
+            if (gbdayss.success)
             {
-                Console.WriteLine(gbdayss.Length + " gbdays were fetched.");
-                gbdays[] gbdaysss = RandomHelper.Sample(rng, gbdayss, 9);
+                Console.WriteLine(gbdayss.gbdayss.Count + " gbdays were fetched.");
+                gbdays[] gbdaysss = RandomHelper.Sample(rng, gbdayss.gbdayss, 9);
                 for (int i = 0; i < gbdaysss.Length; i++)
                 {
                     Console.WriteLine(gbdaysss[i]);
                 }
+                Console.WriteLine(gbdayss);
             }
         }
 

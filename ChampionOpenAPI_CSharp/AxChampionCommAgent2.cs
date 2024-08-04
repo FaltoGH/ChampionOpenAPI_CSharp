@@ -189,34 +189,44 @@ namespace ChampionOpenAPI_CSharp
         }
 
         private const string OutRec1 = "OutRec1";
-        private gbdays[] gbdayss;
+        private List<gbdays> gbdayss;
         private readonly AutoResetEvent gbdayare = new AutoResetEvent(false);
         private void agent_OnGetTranData_gbday()
         {
             int nDataCnt = agent.GetTranOutputRowCnt(gbday, OutRec1);
-            gbdayss = new gbdays[nDataCnt];
+            gbdayss = new List<gbdays>();
             for (int i = 0; i < nDataCnt; i++)
             {
-                gbdayss[i].ldate = agent.GetTranOutputData(gbday, OutRec1, "LDATE", i);
-                gbdayss[i].cpcheck = agent.GetTranOutputData(gbday, OutRec1, "CPCHECK", i);
-                gbdayss[i].ldiff = agent.GetTranOutputData(gbday, OutRec1, "LDIFF", i);
-                gbdayss[i].ldiffratio = agent.GetTranOutputData(gbday, OutRec1, "LDIFFRATIO", i);
-                gbdayss[i].lcprice = agent.GetTranOutputData(gbday, OutRec1, "LCPRICE", i);
-                gbdayss[i].lvolume = agent.GetTranOutputData(gbday, OutRec1, "LVOLUME", i);
-                gbdayss[i].lvalue = agent.GetTranOutputData(gbday, OutRec1, "LVALUE", i);
-                gbdayss[i].loprice = agent.GetTranOutputData(gbday, OutRec1, "LOPRICE", i);
-                gbdayss[i].lhprice = agent.GetTranOutputData(gbday, OutRec1, "LHPRICE", i);
-                gbdayss[i].llprice = agent.GetTranOutputData(gbday, OutRec1, "LLPRICE", i);
-                gbdayss[i].lbprice = agent.GetTranOutputData(gbday, OutRec1, "LBPRICE", i);
+                gbdays g;
+                g.ldate = agent.GetTranOutputData(gbday, OutRec1, "LDATE", i);
+                g.cpcheck = agent.GetTranOutputData(gbday, OutRec1, "CPCHECK", i);
+                g.ldiff = agent.GetTranOutputData(gbday, OutRec1, "LDIFF", i);
+                g.ldiffratio = agent.GetTranOutputData(gbday, OutRec1, "LDIFFRATIO", i);
+                g.lcprice = agent.GetTranOutputData(gbday, OutRec1, "LCPRICE", i);
+                g.lvolume = agent.GetTranOutputData(gbday, OutRec1, "LVOLUME", i);
+                g.lvalue = agent.GetTranOutputData(gbday, OutRec1, "LVALUE", i);
+                g.loprice = agent.GetTranOutputData(gbday, OutRec1, "LOPRICE", i);
+                g.lhprice = agent.GetTranOutputData(gbday, OutRec1, "LHPRICE", i);
+                g.llprice = agent.GetTranOutputData(gbday, OutRec1, "LLPRICE", i);
+                g.lbprice = agent.GetTranOutputData(gbday, OutRec1, "LBPRICE", i);
+                gbdayss.Add(g);
             }
             gbdayare.Set();
         }
 
+        private string sNextKey;
         private void agent_OnGetTranData(object sender, _DChampionCommAgentEvents_OnGetTranDataEvent e)
         {
             string sTrCode = agent.GetCommRecvOptionValue(0); // TR 코드
             string sNextGb = agent.GetCommRecvOptionValue(1);    // 이전/다음 조회구분(0:없음, 4:다음없음, 5:다음없음, 6:다음있음, 7:다음있음)
-            string sNextKey = agent.GetCommRecvOptionValue(2);    // 연속조회키
+            if(sNextGb == "6" || sNextGb == "7")
+            {
+                sNextKey = agent.GetCommRecvOptionValue(2);    // 연속조회키
+            }
+            else
+            {
+                sNextKey = null;
+            }
             string sMsg = agent.GetCommRecvOptionValue(4);    // 응답 메세지
             string sSubMsg = agent.GetCommRecvOptionValue(5);    // 부가 메세지
             string sErrCode = agent.GetCommRecvOptionValue(7);    // 에러여부
@@ -229,39 +239,45 @@ namespace ChampionOpenAPI_CSharp
             }
         }
 
-        private int SetTranInputDatas(int nRqId, string strTrCode, string strRecName, params string[] strItemValues)
+        private void SetTranInputDatas(int nRqId, string strTrCode, string strRecName, params string[] strItemValues)
         {
-            int ret = 0;
             for(sbyte i = 0; i < strItemValues.Length - 1; i += 2)
             {
-                ret |= agent.SetTranInputData(nRqId, strTrCode, strRecName, strItemValues[i], strItemValues[i + 1]);
+                agent.SetTranInputData(nRqId, strTrCode, strRecName, strItemValues[i], strItemValues[i + 1]);
             }
-            return ret;
         }
-
+        
         private const string gbday = "gbday";
         private const string InRec1 = "InRec1";
+
         /// <summary>
         /// 해외주식 일별 정보
         /// </summary>
         /// <param name="strSCODE">종목코드|20|거래소코드(4)+심볼(16)</param>
         /// <param name="strCTP">수정주가여부|1|0:미적용 1:적용</param>
-        public gbdays[] gbdayf(string strSCODE, string strCTP, short nRequestCount)
+        public gbdayfr gbdayf(string strSCODE, string strCTP, short nRequestCount, string sNextKey)
         {
+            gbdayfr ret = new gbdayfr();
             int nRqID = agent.CreateRequestID();
             SetTranInputDatas(nRqID, gbday, InRec1, "SCODE", strSCODE, "CTP", strCTP);
             gbdayare.Reset();
-            int nRtn = agent.RequestTran(nRqID, gbday, null, nRequestCount);
+            int nRtn = agent.RequestTran(nRqID, gbday, sNextKey, nRequestCount);
+            ret.nRtn = nRtn;
             if (nRtn < 1)
             {
                 Console.WriteLine("error: gbdayf return " + nRtn);
-                return null;
+                return ret;
             }
+
             if (!gbdayare.WaitOne(INF))
             {
                 throw new TimeoutException();
             }
-            return gbdayss;
+
+            ret.gbdayss = this.gbdayss;
+            ret.sNextKey = this.sNextKey;
+            ret.success = true;
+            return ret;
         }
 
         public string GetAccInfo()
