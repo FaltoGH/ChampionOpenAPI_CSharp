@@ -108,7 +108,20 @@ namespace ChampionOpenAPI_CSharp
 
         private void GetAccInfo()
         {
-            Console.WriteLine(agent.GetAccInfo());
+            string accInfo = agent.GetAccInfo();
+            string[] accnos = accInfo.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            if (accnos.Length == 1)
+            {
+                Console.WriteLine("1 account found.");
+            }
+            else
+            {
+                Console.WriteLine(accnos.Length + " accounts found.");
+            }
+            for(int i = 0; i < accnos.Length; i++)
+            {
+                Console.WriteLine(accnos[i]);
+            }
         }
 
         public progrm()
