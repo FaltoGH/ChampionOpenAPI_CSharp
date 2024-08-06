@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ChampionOpenAPI_CSharp
 {
-    public struct gbdays
+    public struct gbday_struct
     {
         public string ldate;       //일자
         public string cpcheck;     //전일대비부호

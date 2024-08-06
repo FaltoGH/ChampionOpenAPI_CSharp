@@ -186,15 +186,15 @@ namespace ChampionOpenAPI_CSharp
             }
         }
 
-        private List<gbdays> gbdayss;
+        private List<gbday_struct> m_gbday_structs;
         private readonly AutoResetEvent m_gbday_are = new AutoResetEvent(false);
         private void axChampionCommAgent1_OnGetTranData_gbday()
         {
             int nDataCnt = axChampionCommAgent1.GetTranOutputRowCnt("gbday", "OutRec1");
-            gbdayss = new List<gbdays>();
+            m_gbday_structs = new List<gbday_struct>();
             for (int i = 0; i < nDataCnt; i++)
             {
-                gbdays g;
+                gbday_struct g;
                 g.ldate = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "LDATE", i);
                 g.cpcheck = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "CPCHECK", i);
                 g.ldiff = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "LDIFF", i);
@@ -206,7 +206,7 @@ namespace ChampionOpenAPI_CSharp
                 g.lhprice = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "LHPRICE", i);
                 g.llprice = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "LLPRICE", i);
                 g.lbprice = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "LBPRICE", i);
-                gbdayss.Add(g);
+                m_gbday_structs.Add(g);
             }
             m_gbday_are.Set();
         }
@@ -227,24 +227,24 @@ namespace ChampionOpenAPI_CSharp
             m_gbBSOrder_are.Set();
         }
 
-        private string sNextKey;
+        private string m_sNextKey;
         private void axChampionCommAgent1_OnGetTranData(object sender, _DChampionCommAgentEvents_OnGetTranDataEvent e)
         {
             string sTrCode = axChampionCommAgent1.GetCommRecvOptionValue(0); // TR 코드
             string sNextGb = axChampionCommAgent1.GetCommRecvOptionValue(1);    // 이전/다음 조회구분(0:없음, 4:다음없음, 5:다음없음, 6:다음있음, 7:다음있음)
             if (sNextGb == "6" || sNextGb == "7")
             {
-                sNextKey = axChampionCommAgent1.GetCommRecvOptionValue(2);    // 연속조회키
+                m_sNextKey = axChampionCommAgent1.GetCommRecvOptionValue(2);    // 연속조회키
             }
             else
             {
-                sNextKey = null;
+                m_sNextKey = null;
             }
             string sMsg = axChampionCommAgent1.GetCommRecvOptionValue(4);    // 응답 메세지
             string sSubMsg = axChampionCommAgent1.GetCommRecvOptionValue(5);    // 부가 메세지
             string sErrCode = axChampionCommAgent1.GetCommRecvOptionValue(7);    // 에러여부
             Console.WriteLine("OnGetTranData: sTrCode={0} sNextGb={1} sNextKey={2} sMsg={3} sSubMsg={4} sErrCode={5}",
-                sTrCode, sNextGb, sNextKey, sMsg, sSubMsg, sErrCode);
+                sTrCode, sNextGb, m_sNextKey, sMsg, sSubMsg, sErrCode);
 
             if (sTrCode == "gbday")
             {
@@ -269,29 +269,27 @@ namespace ChampionOpenAPI_CSharp
         /// </summary>
         /// <param name="strSCODE">종목코드|20|거래소코드(4)+심볼(16)</param>
         /// <param name="strCTP">수정주가여부|1|0:미적용 1:적용</param>
-        public MultiData<gbdays> gbdayf(string strSCODE, string strCTP, short nRequestCount, string sNextKey)
+        /// <returns>List of gbday_struct and sNextKey.</returns>
+        public ValueTuple2<List<gbday_struct>,string> gbdayf(string strSCODE, string strCTP, short nRequestCount, string sNextKey)
         {
-            MultiData<gbdays> ret = new MultiData<gbdays>();
             int nRqID = axChampionCommAgent1.CreateRequestID();
             SetTranInputDatas(nRqID, "gbday", "InRec1", "SCODE", strSCODE, "CTP", strCTP);
             m_gbday_are.Reset();
             int nRtn = axChampionCommAgent1.RequestTran(nRqID, "gbday", sNextKey, nRequestCount);
-            ret.nRtn = nRtn;
             if (nRtn < 1)
             {
-                Console.WriteLine("error: gbdayf return " + nRtn);
-                return ret;
+                throw new Exception();
             }
-
             if (!m_gbday_are.WaitOne(0x3f3f3f3f))
             {
                 throw new TimeoutException();
             }
+            return new ValueTuple2<List<gbday_struct>, string>(m_gbday_structs, m_sNextKey);
+        }
 
-            ret.m_list = this.gbdayss;
-            ret.sNextKey = this.sNextKey;
-            ret.bSuccess = true;
-            return ret;
+        private void SleepBeforeRequest()
+        {
+            Thread.Sleep(200);
         }
 
         /// <summary>
@@ -299,21 +297,17 @@ namespace ChampionOpenAPI_CSharp
         /// </summary>
         /// <param name="strSCODE">종목코드|20|거래소코드(4)+심볼(16)</param>
         /// <param name="strCTP">수정주가여부|1|0:미적용 1:적용</param>
-        public MultiData<gbdays> gbdayf2(string strSCODE, string strCTP, short nRequestCount)
+        /// <returns>List of gbday_struct and sNextKey.</returns>
+        public ValueTuple2<List<gbday_struct>, string> gbdayf2(string strSCODE, string strCTP, short nRequestCount)
         {
-            MultiData<gbdays> ret = gbdayf(strSCODE, strCTP, nRequestCount, null);
+            ValueTuple2<List<gbday_struct>, string> ret = gbdayf(strSCODE, strCTP, nRequestCount, null);
 
-            while (ret.Count < nRequestCount && ret.sNextKey != null)
+            while (ret.Item1.Count < nRequestCount && ret.Item2 != null)
             {
-                MultiData<gbdays> ret2 = gbdayf(strSCODE, strCTP, nRequestCount, ret.sNextKey);
-                if (!ret2.bSuccess)
-                {
-                    break;
-                }
-                ret.m_list.AddRange(ret2.m_list);
-                ret.nRtn = ret2.nRtn;
-                ret.sNextKey = ret2.sNextKey;
-                Thread.Sleep(127);
+                SleepBeforeRequest();
+                ValueTuple2<List<gbday_struct>, string> ret2 = gbdayf(strSCODE, strCTP, nRequestCount, ret.Item2);
+                ret.Item1.AddRange(ret2.Item1);
+                ret.Item2 = ret2.Item2;
             }
 
             return ret;
@@ -337,35 +331,24 @@ namespace ChampionOpenAPI_CSharp
         /// <param name="sOrdPrc">해외증권주문단가</param>
         /// <param name="sTradeGb">매매구분(10:매수, 20:매도)</param>
         /// <param name="sOrdTypeCode">해외증권주문유형구분</param>
-        public SingleData<string> SendBSOrderGB(string sAccNo,
+        /// <returns>주문번호</returns>
+        public string SendBSOrderGB(string sAccNo,
             string sAccPwd, string sExgCode, string sJmCode,
             string sOrdQty, string sOrdPrc, string sTradeGb, string sOrdTypeCode)
         {
             int nRqId = axChampionCommAgent1.CreateRequestID();
             int nRtn;
-            string lastErrMsg;
-            SingleData<string> ret = new SingleData<string>();
 
             nRtn = axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "ACNO", sAccNo);       //계좌번호
             if (nRtn < 1) //계좌번호 입력 에러
             {
-                lastErrMsg = axChampionCommAgent1.GetLastErrMsg();
-                ret.bSuccess = false;
-                ret.Data = lastErrMsg;
-                ret.nRtn = nRtn;
-                ret.nRtnType = 1;
-                return ret;
+                throw new Exception();
             }
 
             nRtn = axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "AC_PWD", sAccPwd);    //계좌비밀번호
             if (nRtn < 1) //계좌 비밀번호 에러
             {
-                lastErrMsg = axChampionCommAgent1.GetLastErrMsg();
-                ret.bSuccess = false;
-                ret.Data = lastErrMsg;
-                ret.nRtn = nRtn;
-                ret.nRtnType = 2;
-                return ret;
+                throw new Exception();
             }
 
             axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "EXG_COD", sExgCode);           //거래소코드
@@ -380,12 +363,7 @@ namespace ChampionOpenAPI_CSharp
             nRtn = axChampionCommAgent1.RequestTran(nRqId, g_sTrcode_gbBSOrder, "", 20);
             if (nRtn < 1) //해외주식 매수/매도 주문전송 실패
             {
-                lastErrMsg = axChampionCommAgent1.GetLastErrMsg();
-                ret.bSuccess = false;
-                ret.Data = lastErrMsg;
-                ret.nRtn = nRtn;
-                ret.nRtnType = 3;
-                return ret;
+                throw new Exception();
             }
 
             if (!m_gbday_are.WaitOne(0x3f3f3f3f))
@@ -393,11 +371,7 @@ namespace ChampionOpenAPI_CSharp
                 throw new TimeoutException();
             }
 
-            ret.bSuccess = true;
-            ret.Data = m_sOrdNo;
-            ret.nRtn = nRtn;
-            ret.nRtnType = 4;
-            return ret;
+            return m_sOrdNo;
         }
 
     }

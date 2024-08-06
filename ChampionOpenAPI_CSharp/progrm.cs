@@ -93,16 +93,12 @@ namespace ChampionOpenAPI_CSharp
             string jmcode = Console.ReadLine();
             Console.Write("Enter request count: ");
             short nRequestCount = short.Parse(Console.ReadLine());
-            MultiData<gbdays> gbdayss = agent.gbdayf2(jmcode, "1", nRequestCount);
-            if (gbdayss.bSuccess)
+            ValueTuple2<List<gbday_struct>, string> gbdayss = agent.gbdayf2(jmcode, "1", nRequestCount);
+            Console.WriteLine(gbdayss.Item1.Count + " gbdays were fetched.");
+            gbday_struct[] gbdaysss = rng.Sample(gbdayss.Item1, 9);
+            foreach (var s in gbdaysss)
             {
-                Console.WriteLine(gbdayss.m_list.Count + " gbdays were fetched.");
-                gbdays[] gbdaysss = rng.Sample(gbdayss.m_list, 9);
-                foreach(var s in gbdaysss)
-                {
-                    Console.WriteLine(s);
-                }
-                Console.WriteLine(gbdayss);
+                Console.WriteLine(s);
             }
         }
 
@@ -118,9 +114,9 @@ namespace ChampionOpenAPI_CSharp
             {
                 Console.WriteLine(accnos.Length + " accounts found.");
             }
-            for(int i = 0; i < accnos.Length; i++)
+            foreach(var accno in accnos)
             {
-                Console.WriteLine(accnos[i]);
+                Console.WriteLine(accno);
             }
         }
 
