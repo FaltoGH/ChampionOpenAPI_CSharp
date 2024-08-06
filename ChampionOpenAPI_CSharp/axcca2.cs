@@ -109,7 +109,7 @@ namespace ChampionOpenAPI_CSharp
                     new Control().Controls.Add(axChampionCommAgent1);
                     axChampionCommAgent1.EndInit();
                     are.Set();
-                    axChampionCommAgent1.OnGetTranData += agent_OnGetTranData;
+                    axChampionCommAgent1.OnGetTranData += axChampionCommAgent1_OnGetTranData;
                     System.Windows.Forms.Application.Run();
                 })
                 { IsBackground = true, Name = "axt" };
@@ -188,7 +188,7 @@ namespace ChampionOpenAPI_CSharp
 
         private List<gbdays> gbdayss;
         private readonly AutoResetEvent gbdayare = new AutoResetEvent(false);
-        private void agent_OnGetTranData_gbday()
+        private void axChampionCommAgent1_OnGetTranData_gbday()
         {
             int nDataCnt = axChampionCommAgent1.GetTranOutputRowCnt("gbday", "OutRec1");
             gbdayss = new List<gbdays>();
@@ -211,8 +211,22 @@ namespace ChampionOpenAPI_CSharp
             gbdayare.Set();
         }
 
+        private string m_sOrdNo;
+        private void axChampionCommAgent1_OnGetTranData_gbBSOrder()
+        {
+            string sOrdNo = axChampionCommAgent1.GetTranOutputData(g_sTrcode_gbBSOrder, "OutRec1", "ORD_NO", 0);   //주문번호
+            if (!string.IsNullOrWhiteSpace(sOrdNo))
+            {
+                m_sOrdNo = sOrdNo;
+            }
+            else
+            {
+                m_sOrdNo = null;
+            }
+        }
+
         private string sNextKey;
-        private void agent_OnGetTranData(object sender, _DChampionCommAgentEvents_OnGetTranDataEvent e)
+        private void axChampionCommAgent1_OnGetTranData(object sender, _DChampionCommAgentEvents_OnGetTranDataEvent e)
         {
             string sTrCode = axChampionCommAgent1.GetCommRecvOptionValue(0); // TR 코드
             string sNextGb = axChampionCommAgent1.GetCommRecvOptionValue(1);    // 이전/다음 조회구분(0:없음, 4:다음없음, 5:다음없음, 6:다음있음, 7:다음있음)
@@ -232,7 +246,11 @@ namespace ChampionOpenAPI_CSharp
 
             if (sTrCode == "gbday")
             {
-                agent_OnGetTranData_gbday();
+                axChampionCommAgent1_OnGetTranData_gbday();
+            }
+            else if(sTrCode == g_sTrcode_gbBSOrder)
+            {
+                axChampionCommAgent1_OnGetTranData_gbBSOrder();
             }
         }
 
@@ -318,12 +336,13 @@ namespace ChampionOpenAPI_CSharp
         /// <param name="sOrdPrc">해외증권주문단가</param>
         /// <param name="sTradeGb">매매구분(10:매수, 20:매도)</param>
         /// <param name="sOrdTypeCode">해외증권주문유형구분</param>
-        public string SendOrder(string sAccNo,
+        public string SendBSOrderGB(string sAccNo,
             string sAccPwd, string sExgCode, string sJmCode,
             string sOrdQty, string sOrdPrc, string sTradeGb, string sOrdTypeCode)
         {
             int nRqId = axChampionCommAgent1.CreateRequestID();
             int nRtn;
+
             nRtn = axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "ACNO", sAccNo);       //계좌번호
             if (nRtn < 1) //계좌번호 입력 에러
             {
