@@ -1,4 +1,4 @@
-﻿namespace System
+﻿namespace ChampionOpenAPI_CSharp
 {
 // Struct "ValueTuple" is not supported in the version under .NET Framework 4.7.
 // To support .NET Framework 4.7, I built a custom struct, whose name is "ValueTuple2".

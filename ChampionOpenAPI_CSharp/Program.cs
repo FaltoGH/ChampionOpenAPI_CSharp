@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace ChampionOpenAPI_CSharp
 {
 
-    internal class progrm
+    internal class Program
     {
         public static readonly Random rng = new Random();
         private readonly axcca2 agent;
@@ -120,7 +120,7 @@ namespace ChampionOpenAPI_CSharp
             }
         }
 
-        public progrm()
+        public Program()
         {
             agent = new axcca2();
             if (!VersionCheck()) return;
@@ -159,7 +159,7 @@ namespace ChampionOpenAPI_CSharp
 
         private static void Main(string[] args)
         {
-            new progrm();
+            new Program();
         }
     }
 

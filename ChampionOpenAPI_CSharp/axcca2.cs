@@ -63,7 +63,7 @@ namespace ChampionOpenAPI_CSharp
         }
 
         private bool __b1421533;
-        private readonly conc<int> __versionCheckValue = new conc<int>();
+        private readonly Concurrent<int> __versionCheckValue = new Concurrent<int>();
         public void VersionCheck()
         {
             new Thread(() =>
@@ -244,7 +244,7 @@ namespace ChampionOpenAPI_CSharp
             string sSubMsg = axChampionCommAgent1.GetCommRecvOptionValue(5);    // 부가 메세지
             string sErrCode = axChampionCommAgent1.GetCommRecvOptionValue(7);    // 에러여부
             Console.WriteLine("OnGetTranData: sTrCode={0} sNextGb={1} sNextKey={2} sMsg={3} sSubMsg={4} sErrCode={5}",
-                sTrCode, sNextGb, m_sNextKey, sMsg, sSubMsg, sErrCode);
+                sTrCode, sNextGb, m_sNextKey, sMsg, sSubMsg, sErrCode);//null safe
 
             if (sTrCode == "gbday")
             {
@@ -330,11 +330,11 @@ namespace ChampionOpenAPI_CSharp
         /// <param name="sOrdQty">주문수량</param>
         /// <param name="sOrdPrc">해외증권주문단가</param>
         /// <param name="sTradeGb">매매구분(10:매수, 20:매도)</param>
-        /// <param name="sOrdTypeCode">해외증권주문유형구분</param>
+        /// <param name="ordType">해외증권주문유형구분</param>
         /// <returns>주문번호</returns>
         public string SendBSOrderGB(string sAccNo,
             string sAccPwd, string sExgCode, string sJmCode,
-            string sOrdQty, string sOrdPrc, string sTradeGb, string sOrdTypeCode)
+            string sOrdQty, string sOrdPrc, string sTradeGb, OrderType ordType)
         {
             int nRqId = axChampionCommAgent1.CreateRequestID();
             int nRtn;
@@ -356,7 +356,7 @@ namespace ChampionOpenAPI_CSharp
             axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "ORD_Q", sOrdQty);              //주문수량
             axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "FGST_ORD_UPR", sOrdPrc);       //해외증권주문단가
             axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "BUY_SEL_TR_TCD", sTradeGb);    //매매구분(10:매수, 20:매도)
-            axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "FGST_BNS_TCD", sOrdTypeCode);  //해외증권주문유형구분
+            axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "FGST_BNS_TCD", ordType.Code);  //해외증권주문유형구분
             axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "ORD_COND_TCD", "0");           //주문조건구분("0" 으로 고정)
             axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "EMC_ORD_YN", "N");             //비상주문여부("N" 으로 고정)
 
