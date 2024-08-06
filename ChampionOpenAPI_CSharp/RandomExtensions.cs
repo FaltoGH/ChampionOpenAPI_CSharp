@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace ChampionOpenAPI_CSharp
 {
-    public static class rand
+    public static class RandomExtensions
     {
-        //theta(n)
-        public static void Shuffle<T>(Random rng, T[] array)
+        //time complexity: theta(n)
+        public static void Shuffle<T>(this Random rng, T[] array)
         {
             int n = array.Length;
             while (n > 1)
@@ -24,8 +24,8 @@ namespace ChampionOpenAPI_CSharp
             }
         }
 
-        //theta(n)
-        public static T[] Sample<T>(Random rng, IList<T> array, int count)
+        //time complexity: theta(n)
+        public static T[] Sample<T>(this Random rng, IList<T> array, int count)
         {
             int[] range = Enumerable.Range(0, array.Count).ToArray();
             Shuffle(rng, range);

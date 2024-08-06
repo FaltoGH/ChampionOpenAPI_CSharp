@@ -79,7 +79,7 @@ namespace ChampionOpenAPI_CSharp
         {
             List<string> codeList = agent.GetCodeList();
             Console.WriteLine(codeList.Count + " codes");
-            string[] sample = rand.Sample(rng, codeList, 9);
+            string[] sample = rng.Sample(codeList, 9);
             Console.WriteLine("Random sample codes are:");
             for (byte i = 0; i < 9; i++)
             {
@@ -97,7 +97,7 @@ namespace ChampionOpenAPI_CSharp
             if (gbdayss.success)
             {
                 Console.WriteLine(gbdayss.gbdayss.Count + " gbdays were fetched.");
-                gbdays[] gbdaysss = rand.Sample(rng, gbdayss.gbdayss, 9);
+                gbdays[] gbdaysss = rng.Sample(gbdayss.gbdayss, 9);
                 for (int i = 0; i < gbdaysss.Length; i++)
                 {
                     Console.WriteLine(gbdaysss[i]);
