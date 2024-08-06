@@ -131,26 +131,26 @@ namespace ChampionOpenAPI_CSharp
             if (!Login()) return;
         cmd:
             Console.WriteLine("vvvvvvvvvvvvvvvv");
-            Console.WriteLine("Input one of the following commands:");
-            Console.WriteLine("exit");
-            Console.WriteLine("codelst");
-            Console.WriteLine("chart");
-            Console.WriteLine("GetAccInfo");
+            Console.WriteLine("Input the digit of the following commands:");
+            Console.WriteLine("0: exit the program");
+            Console.WriteLine("1: print code list");
+            Console.WriteLine("2: print chart");
+            Console.WriteLine("3: print account info");
             Console.WriteLine("^^^^^^^^^^^^^^^^");
             Console.Write(">>> ");
             string cmd = Console.ReadLine();
             switch (cmd)
             {
-                case "exit":
+                case "0":
                     agent.Dispose();
                     return;
-                case "codelst":
+                case "1":
                     PrintCodeList();
                     break;
-                case "chart":
+                case "2":
                     PrintChart();
                     break;
-                case "GetAccInfo":
+                case "3":
                     GetAccInfo();
                     break;
                 default:

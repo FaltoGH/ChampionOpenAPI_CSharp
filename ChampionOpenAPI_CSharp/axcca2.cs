@@ -19,12 +19,10 @@ namespace ChampionOpenAPI_CSharp
 
     public class axcca2 : IDisposable
     {
-        private const short VERSION_CHECKED = 0x1cfe;
-        private const int INF = 0x3f3f3f3f;
         private void WndProc(ref Message m)
         {
             Console.WriteLine("message: " + m);
-            if (m.Msg == VERSION_CHECKED)
+            if (m.Msg == 0x1cfe) // version check success
             {
                 int g_nVersionCheck;
                 if ((int)m.LParam == 1)
@@ -97,7 +95,7 @@ namespace ChampionOpenAPI_CSharp
             __versionCheckValue.WaitWhile(x => x == 0);
         }
 
-        private AxChampionCommAgent agent;
+        private AxChampionCommAgent axChampionCommAgent1;
         private bool __isLoginSuccess;
         private string __loginedUserID;
         public int Login(string userID, string pwd, string certPwd)
@@ -106,20 +104,20 @@ namespace ChampionOpenAPI_CSharp
             {
                 Thread t = new Thread(() =>
                 {
-                    agent = new AxChampionCommAgent();
-                    agent.BeginInit();
-                    new Control().Controls.Add(agent);
-                    agent.EndInit();
+                    axChampionCommAgent1 = new AxChampionCommAgent();
+                    axChampionCommAgent1.BeginInit();
+                    new Control().Controls.Add(axChampionCommAgent1);
+                    axChampionCommAgent1.EndInit();
                     are.Set();
-                    agent.OnGetTranData += agent_OnGetTranData;
+                    axChampionCommAgent1.OnGetTranData += agent_OnGetTranData;
                     System.Windows.Forms.Application.Run();
                 })
                 { IsBackground = true, Name = "axt" };
                 t.SetApartmentState(ApartmentState.STA);
                 t.Start();
-                if (!are.WaitOne(INF)) { throw new TimeoutException(); }
+                if (!are.WaitOne(0x3f3f3f3f)) { throw new TimeoutException(); }
             }
-            int ret = agent.CommLogin(__versionCheckValue.Get(), userID, pwd, certPwd);
+            int ret = axChampionCommAgent1.CommLogin(__versionCheckValue.Get(), userID, pwd, certPwd);
             if (ret == 0)
             {
                 __loginedUserID = userID;
@@ -130,7 +128,7 @@ namespace ChampionOpenAPI_CSharp
 
         public string GetLastErrMsg()
         {
-            return agent.GetLastErrMsg();
+            return axChampionCommAgent1.GetLastErrMsg();
         }
 
         private string __s3519352;
@@ -169,46 +167,45 @@ namespace ChampionOpenAPI_CSharp
 
         public void Dispose()
         {
-            if (agent != null)
+            if (axChampionCommAgent1 != null)
             {
                 if (__isLoginSuccess)
                 {
-                    agent?.CommLogout(__loginedUserID);
+                    axChampionCommAgent1?.CommLogout(__loginedUserID);
                 }
-                agent?.AllUnRegisterReal();
+                axChampionCommAgent1?.AllUnRegisterReal();
                 try
                 {
-                    agent?.CommTerminate(1);
+                    axChampionCommAgent1?.CommTerminate(1);
                 }
                 catch (COMException e)
                 {
                     Console.WriteLine("Dispose: catched exception: " + e);
                 }
-                agent?.Dispose();
+                axChampionCommAgent1?.Dispose();
             }
         }
 
-        private const string OutRec1 = "OutRec1";
         private List<gbdays> gbdayss;
         private readonly AutoResetEvent gbdayare = new AutoResetEvent(false);
         private void agent_OnGetTranData_gbday()
         {
-            int nDataCnt = agent.GetTranOutputRowCnt(gbday, OutRec1);
+            int nDataCnt = axChampionCommAgent1.GetTranOutputRowCnt("gbday", "OutRec1");
             gbdayss = new List<gbdays>();
             for (int i = 0; i < nDataCnt; i++)
             {
                 gbdays g;
-                g.ldate = agent.GetTranOutputData(gbday, OutRec1, "LDATE", i);
-                g.cpcheck = agent.GetTranOutputData(gbday, OutRec1, "CPCHECK", i);
-                g.ldiff = agent.GetTranOutputData(gbday, OutRec1, "LDIFF", i);
-                g.ldiffratio = agent.GetTranOutputData(gbday, OutRec1, "LDIFFRATIO", i);
-                g.lcprice = agent.GetTranOutputData(gbday, OutRec1, "LCPRICE", i);
-                g.lvolume = agent.GetTranOutputData(gbday, OutRec1, "LVOLUME", i);
-                g.lvalue = agent.GetTranOutputData(gbday, OutRec1, "LVALUE", i);
-                g.loprice = agent.GetTranOutputData(gbday, OutRec1, "LOPRICE", i);
-                g.lhprice = agent.GetTranOutputData(gbday, OutRec1, "LHPRICE", i);
-                g.llprice = agent.GetTranOutputData(gbday, OutRec1, "LLPRICE", i);
-                g.lbprice = agent.GetTranOutputData(gbday, OutRec1, "LBPRICE", i);
+                g.ldate = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "LDATE", i);
+                g.cpcheck = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "CPCHECK", i);
+                g.ldiff = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "LDIFF", i);
+                g.ldiffratio = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "LDIFFRATIO", i);
+                g.lcprice = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "LCPRICE", i);
+                g.lvolume = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "LVOLUME", i);
+                g.lvalue = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "LVALUE", i);
+                g.loprice = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "LOPRICE", i);
+                g.lhprice = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "LHPRICE", i);
+                g.llprice = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "LLPRICE", i);
+                g.lbprice = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "LBPRICE", i);
                 gbdayss.Add(g);
             }
             gbdayare.Set();
@@ -217,23 +214,23 @@ namespace ChampionOpenAPI_CSharp
         private string sNextKey;
         private void agent_OnGetTranData(object sender, _DChampionCommAgentEvents_OnGetTranDataEvent e)
         {
-            string sTrCode = agent.GetCommRecvOptionValue(0); // TR 코드
-            string sNextGb = agent.GetCommRecvOptionValue(1);    // 이전/다음 조회구분(0:없음, 4:다음없음, 5:다음없음, 6:다음있음, 7:다음있음)
-            if(sNextGb == "6" || sNextGb == "7")
+            string sTrCode = axChampionCommAgent1.GetCommRecvOptionValue(0); // TR 코드
+            string sNextGb = axChampionCommAgent1.GetCommRecvOptionValue(1);    // 이전/다음 조회구분(0:없음, 4:다음없음, 5:다음없음, 6:다음있음, 7:다음있음)
+            if (sNextGb == "6" || sNextGb == "7")
             {
-                sNextKey = agent.GetCommRecvOptionValue(2);    // 연속조회키
+                sNextKey = axChampionCommAgent1.GetCommRecvOptionValue(2);    // 연속조회키
             }
             else
             {
                 sNextKey = null;
             }
-            string sMsg = agent.GetCommRecvOptionValue(4);    // 응답 메세지
-            string sSubMsg = agent.GetCommRecvOptionValue(5);    // 부가 메세지
-            string sErrCode = agent.GetCommRecvOptionValue(7);    // 에러여부
+            string sMsg = axChampionCommAgent1.GetCommRecvOptionValue(4);    // 응답 메세지
+            string sSubMsg = axChampionCommAgent1.GetCommRecvOptionValue(5);    // 부가 메세지
+            string sErrCode = axChampionCommAgent1.GetCommRecvOptionValue(7);    // 에러여부
             Console.WriteLine("OnGetTranData: sTrCode={0} sNextGb={1} sNextKey={2} sMsg={3} sSubMsg={4} sErrCode={5}",
                 sTrCode, sNextGb, sNextKey, sMsg, sSubMsg, sErrCode);
 
-            if (sTrCode == gbday)
+            if (sTrCode == "gbday")
             {
                 agent_OnGetTranData_gbday();
             }
@@ -241,14 +238,11 @@ namespace ChampionOpenAPI_CSharp
 
         private void SetTranInputDatas(int nRqId, string strTrCode, string strRecName, params string[] strItemValues)
         {
-            for(sbyte i = 0; i < strItemValues.Length - 1; i += 2)
+            for (sbyte i = 0; i < strItemValues.Length - 1; i += 2)
             {
-                agent.SetTranInputData(nRqId, strTrCode, strRecName, strItemValues[i], strItemValues[i + 1]);
+                axChampionCommAgent1.SetTranInputData(nRqId, strTrCode, strRecName, strItemValues[i], strItemValues[i + 1]);
             }
         }
-        
-        private const string gbday = "gbday";
-        private const string InRec1 = "InRec1";
 
         /// <summary>
         /// 해외주식 일별 정보
@@ -258,10 +252,10 @@ namespace ChampionOpenAPI_CSharp
         public gbdayfr gbdayf(string strSCODE, string strCTP, short nRequestCount, string sNextKey)
         {
             gbdayfr ret = new gbdayfr();
-            int nRqID = agent.CreateRequestID();
-            SetTranInputDatas(nRqID, gbday, InRec1, "SCODE", strSCODE, "CTP", strCTP);
+            int nRqID = axChampionCommAgent1.CreateRequestID();
+            SetTranInputDatas(nRqID, "gbday", "InRec1", "SCODE", strSCODE, "CTP", strCTP);
             gbdayare.Reset();
-            int nRtn = agent.RequestTran(nRqID, gbday, sNextKey, nRequestCount);
+            int nRtn = axChampionCommAgent1.RequestTran(nRqID, "gbday", sNextKey, nRequestCount);
             ret.nRtn = nRtn;
             if (nRtn < 1)
             {
@@ -269,7 +263,7 @@ namespace ChampionOpenAPI_CSharp
                 return ret;
             }
 
-            if (!gbdayare.WaitOne(INF))
+            if (!gbdayare.WaitOne(0x3f3f3f3f))
             {
                 throw new TimeoutException();
             }
@@ -308,7 +302,56 @@ namespace ChampionOpenAPI_CSharp
 
         public string GetAccInfo()
         {
-            return agent.GetAccInfo();
+            return axChampionCommAgent1.GetAccInfo();
+        }
+
+        private const string g_sTrcode_gbBSOrder = "OTD6101U";    //해외주식 매수/매도 주문전송 TrCode
+
+        /// <summary>
+        /// 해외주식 매수/매도 주문 전송(OTD6101U)
+        /// </summary>
+        /// <param name="sAccNo"></param>
+        /// <param name="sAccPwd"></param>
+        /// <param name="sExgCode">거래소코드</param>
+        /// <param name="sJmCode">종목코드</param>
+        /// <param name="sOrdQty">주문수량</param>
+        /// <param name="sOrdPrc">해외증권주문단가</param>
+        /// <param name="sTradeGb">매매구분(10:매수, 20:매도)</param>
+        /// <param name="sOrdTypeCode">해외증권주문유형구분</param>
+        public string SendOrder(string sAccNo,
+            string sAccPwd, string sExgCode, string sJmCode,
+            string sOrdQty, string sOrdPrc, string sTradeGb, string sOrdTypeCode)
+        {
+            int nRqId = axChampionCommAgent1.CreateRequestID();
+            int nRtn;
+            nRtn = axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "ACNO", sAccNo);       //계좌번호
+            if (nRtn < 1) //계좌번호 입력 에러
+            {
+                return axChampionCommAgent1.GetLastErrMsg();
+            }
+
+            nRtn = axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "AC_PWD", sAccPwd);    //계좌비밀번호
+            if (nRtn < 1) //계좌 비밀번호 에러
+            {
+                return axChampionCommAgent1.GetLastErrMsg();
+            }
+
+            axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "EXG_COD", sExgCode);           //거래소코드
+            axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "ITEM_COD", sJmCode);           //종목코드
+            axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "ORD_Q", sOrdQty);              //주문수량
+            axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "FGST_ORD_UPR", sOrdPrc);       //해외증권주문단가
+            axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "BUY_SEL_TR_TCD", sTradeGb);    //매매구분(10:매수, 20:매도)
+            axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "FGST_BNS_TCD", sOrdTypeCode);  //해외증권주문유형구분
+            axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "ORD_COND_TCD", "0");           //주문조건구분("0" 으로 고정)
+            axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "EMC_ORD_YN", "N");             //비상주문여부("N" 으로 고정)
+
+            nRtn = axChampionCommAgent1.RequestTran(nRqId, g_sTrcode_gbBSOrder, "", 20);
+            if (nRtn < 1) //해외주식 매수/매도 주문전송 실패
+            {
+                return axChampionCommAgent1.GetLastErrMsg();
+            }
+
+            return null;
         }
 
     }
