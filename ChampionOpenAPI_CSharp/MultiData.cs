@@ -7,24 +7,24 @@ using System.Threading.Tasks;
 namespace ChampionOpenAPI_CSharp
 {
 
-    public struct gbdayfr
+    public struct MultiData<T>
     {
-        public List<gbdays> gbdayss;
+        public List<T> m_list;
         public int nRtn;
         public string sNextKey;
-        public bool success;
+        public bool bSuccess;
 
         public int Count
         {
             get
             {
-                return gbdayss?.Count ?? 0;
+                return m_list?.Count ?? 0;
             }
         }
 
         public override string ToString()
         {
-            return "Count={0} nRtn={1} sNextKey={2} success={3}".NullSafeFormat(Count, nRtn, sNextKey, success);
+            return "Count={0} nRtn={1} sNextKey={2} bSuccess={3}".NullSafeFormat(Count, nRtn, sNextKey, bSuccess);
         }
 
     }

@@ -187,7 +187,7 @@ namespace ChampionOpenAPI_CSharp
         }
 
         private List<gbdays> gbdayss;
-        private readonly AutoResetEvent gbdayare = new AutoResetEvent(false);
+        private readonly AutoResetEvent m_gbday_are = new AutoResetEvent(false);
         private void axChampionCommAgent1_OnGetTranData_gbday()
         {
             int nDataCnt = axChampionCommAgent1.GetTranOutputRowCnt("gbday", "OutRec1");
@@ -208,10 +208,11 @@ namespace ChampionOpenAPI_CSharp
                 g.lbprice = axChampionCommAgent1.GetTranOutputData("gbday", "OutRec1", "LBPRICE", i);
                 gbdayss.Add(g);
             }
-            gbdayare.Set();
+            m_gbday_are.Set();
         }
 
         private string m_sOrdNo;
+        private readonly AutoResetEvent m_gbBSOrder_are = new AutoResetEvent(false);
         private void axChampionCommAgent1_OnGetTranData_gbBSOrder()
         {
             string sOrdNo = axChampionCommAgent1.GetTranOutputData(g_sTrcode_gbBSOrder, "OutRec1", "ORD_NO", 0);   //주문번호
@@ -223,6 +224,7 @@ namespace ChampionOpenAPI_CSharp
             {
                 m_sOrdNo = null;
             }
+            m_gbBSOrder_are.Set();
         }
 
         private string sNextKey;
@@ -267,12 +269,12 @@ namespace ChampionOpenAPI_CSharp
         /// </summary>
         /// <param name="strSCODE">종목코드|20|거래소코드(4)+심볼(16)</param>
         /// <param name="strCTP">수정주가여부|1|0:미적용 1:적용</param>
-        public gbdayfr gbdayf(string strSCODE, string strCTP, short nRequestCount, string sNextKey)
+        public MultiData<gbdays> gbdayf(string strSCODE, string strCTP, short nRequestCount, string sNextKey)
         {
-            gbdayfr ret = new gbdayfr();
+            MultiData<gbdays> ret = new MultiData<gbdays>();
             int nRqID = axChampionCommAgent1.CreateRequestID();
             SetTranInputDatas(nRqID, "gbday", "InRec1", "SCODE", strSCODE, "CTP", strCTP);
-            gbdayare.Reset();
+            m_gbday_are.Reset();
             int nRtn = axChampionCommAgent1.RequestTran(nRqID, "gbday", sNextKey, nRequestCount);
             ret.nRtn = nRtn;
             if (nRtn < 1)
@@ -281,14 +283,14 @@ namespace ChampionOpenAPI_CSharp
                 return ret;
             }
 
-            if (!gbdayare.WaitOne(0x3f3f3f3f))
+            if (!m_gbday_are.WaitOne(0x3f3f3f3f))
             {
                 throw new TimeoutException();
             }
 
-            ret.gbdayss = this.gbdayss;
+            ret.m_list = this.gbdayss;
             ret.sNextKey = this.sNextKey;
-            ret.success = true;
+            ret.bSuccess = true;
             return ret;
         }
 
@@ -297,19 +299,18 @@ namespace ChampionOpenAPI_CSharp
         /// </summary>
         /// <param name="strSCODE">종목코드|20|거래소코드(4)+심볼(16)</param>
         /// <param name="strCTP">수정주가여부|1|0:미적용 1:적용</param>
-        public gbdayfr gbdayf2(string strSCODE, string strCTP, short nRequestCount)
+        public MultiData<gbdays> gbdayf2(string strSCODE, string strCTP, short nRequestCount)
         {
-            gbdayfr ret = gbdayf(strSCODE, strCTP, nRequestCount, null);
+            MultiData<gbdays> ret = gbdayf(strSCODE, strCTP, nRequestCount, null);
 
             while (ret.Count < nRequestCount && ret.sNextKey != null)
             {
-                //call gbdayf
-                gbdayfr ret2 = gbdayf(strSCODE, strCTP, nRequestCount, ret.sNextKey);
-                if (!ret2.success)
+                MultiData<gbdays> ret2 = gbdayf(strSCODE, strCTP, nRequestCount, ret.sNextKey);
+                if (!ret2.bSuccess)
                 {
                     break;
                 }
-                ret.gbdayss.AddRange(ret2.gbdayss);
+                ret.m_list.AddRange(ret2.m_list);
                 ret.nRtn = ret2.nRtn;
                 ret.sNextKey = ret2.sNextKey;
                 Thread.Sleep(127);
@@ -328,31 +329,43 @@ namespace ChampionOpenAPI_CSharp
         /// <summary>
         /// 해외주식 매수/매도 주문 전송(OTD6101U)
         /// </summary>
-        /// <param name="sAccNo"></param>
-        /// <param name="sAccPwd"></param>
+        /// <param name="sAccNo">계좌번호</param>
+        /// <param name="sAccPwd">계좌비밀번호</param>
         /// <param name="sExgCode">거래소코드</param>
         /// <param name="sJmCode">종목코드</param>
         /// <param name="sOrdQty">주문수량</param>
         /// <param name="sOrdPrc">해외증권주문단가</param>
         /// <param name="sTradeGb">매매구분(10:매수, 20:매도)</param>
         /// <param name="sOrdTypeCode">해외증권주문유형구분</param>
-        public string SendBSOrderGB(string sAccNo,
+        public SingleData<string> SendBSOrderGB(string sAccNo,
             string sAccPwd, string sExgCode, string sJmCode,
             string sOrdQty, string sOrdPrc, string sTradeGb, string sOrdTypeCode)
         {
             int nRqId = axChampionCommAgent1.CreateRequestID();
             int nRtn;
+            string lastErrMsg;
+            SingleData<string> ret = new SingleData<string>();
 
             nRtn = axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "ACNO", sAccNo);       //계좌번호
             if (nRtn < 1) //계좌번호 입력 에러
             {
-                return axChampionCommAgent1.GetLastErrMsg();
+                lastErrMsg = axChampionCommAgent1.GetLastErrMsg();
+                ret.bSuccess = false;
+                ret.Data = lastErrMsg;
+                ret.nRtn = nRtn;
+                ret.nRtnType = 1;
+                return ret;
             }
 
             nRtn = axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "AC_PWD", sAccPwd);    //계좌비밀번호
             if (nRtn < 1) //계좌 비밀번호 에러
             {
-                return axChampionCommAgent1.GetLastErrMsg();
+                lastErrMsg = axChampionCommAgent1.GetLastErrMsg();
+                ret.bSuccess = false;
+                ret.Data = lastErrMsg;
+                ret.nRtn = nRtn;
+                ret.nRtnType = 2;
+                return ret;
             }
 
             axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "EXG_COD", sExgCode);           //거래소코드
@@ -367,10 +380,24 @@ namespace ChampionOpenAPI_CSharp
             nRtn = axChampionCommAgent1.RequestTran(nRqId, g_sTrcode_gbBSOrder, "", 20);
             if (nRtn < 1) //해외주식 매수/매도 주문전송 실패
             {
-                return axChampionCommAgent1.GetLastErrMsg();
+                lastErrMsg = axChampionCommAgent1.GetLastErrMsg();
+                ret.bSuccess = false;
+                ret.Data = lastErrMsg;
+                ret.nRtn = nRtn;
+                ret.nRtnType = 3;
+                return ret;
             }
 
-            return null;
+            if (!m_gbday_are.WaitOne(0x3f3f3f3f))
+            {
+                throw new TimeoutException();
+            }
+
+            ret.bSuccess = true;
+            ret.Data = m_sOrdNo;
+            ret.nRtn = nRtn;
+            ret.nRtnType = 4;
+            return ret;
         }
 
     }

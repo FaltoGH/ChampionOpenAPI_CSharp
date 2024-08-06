@@ -69,7 +69,8 @@
     <Compile Include="conc.cs" />
     <Compile Include="Data\OverseaStockInfo.cs" />
     <Compile Include="Form1.cs" />
-    <Compile Include="gbdayfr.cs" />
+    <Compile Include="SingleData.cs" />
+    <Compile Include="MultiData.cs" />
     <Compile Include="gbdays.cs" />
     <Compile Include="progrm.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
