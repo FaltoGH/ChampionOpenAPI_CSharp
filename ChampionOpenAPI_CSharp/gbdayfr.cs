@@ -24,7 +24,7 @@ namespace ChampionOpenAPI_CSharp
 
         public override string ToString()
         {
-            return str.Format("Count={0} nRtn={1} sNextKey={2} success={3}", Count, nRtn, sNextKey, success);
+            return "Count={0} nRtn={1} sNextKey={2} success={3}".NullSafeFormat(Count, nRtn, sNextKey, success);
         }
 
     }

@@ -6,19 +6,22 @@ using System.Threading.Tasks;
 
 namespace ChampionOpenAPI_CSharp
 {
-    public static class str
+    public static class StringExtensions
     {
-        /// <summary>
-        /// Provides null-safe formatting method.
-        /// </summary>
-        public static string Format(string format, params object[] args)
+        public static string NullSafeFormat(this string format, params object[] args)
         {
-            object[] arg = (object[])args.Clone();
-            for(sbyte i = 0; i < arg.Length; i++)
+            if (format == null) return string.Empty;
+            if (string.IsNullOrWhiteSpace(format)) return format;
+            if (args.Length <= 0) return format;
+
+            object[] args2 = (object[])args.Clone();
+
+            for(sbyte i = 0; i < args2.Length; i++)
             {
-                if (arg[i] == null) { arg[i] = string.Empty; }
+                if (args2[i] == null) { args2[i] = string.Empty; }
             }
-            return string.Format(format, arg);
+
+            return string.Format(format, args2);
         }
     }
 }
