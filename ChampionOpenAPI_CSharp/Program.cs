@@ -79,7 +79,7 @@ namespace ChampionOpenAPI_CSharp
         {
             List<string> codeList = agent.GetCodeList();
             Console.WriteLine(codeList.Count + " codes");
-            string[] sample = rng.Sample(codeList, 9);
+            string[] sample = rng.Sample(codeList, Math.Min(codeList.Count, 9));
             Console.WriteLine("Random sample codes are:");
             foreach(var s in sample)
             {
@@ -95,7 +95,7 @@ namespace ChampionOpenAPI_CSharp
             short nRequestCount = short.Parse(Console.ReadLine());
             ValueTuple2<List<gbday_struct>, string> gbdayss = agent.gbdayf2(jmcode, "1", nRequestCount);
             Console.WriteLine(gbdayss.Item1.Count + " gbdays were fetched.");
-            gbday_struct[] gbdaysss = rng.Sample(gbdayss.Item1, 9);
+            gbday_struct[] gbdaysss = rng.Sample(gbdayss.Item1, Math.Min(gbdayss.Item1.Count, 9));
             foreach (var s in gbdaysss)
             {
                 Console.WriteLine(s);
@@ -137,9 +137,43 @@ namespace ChampionOpenAPI_CSharp
             return null;
         }
 
+        private string input(string x)
+        {
+            Console.Write(x);
+            return Console.ReadLine();
+        }
+
+        private OrderType SelectOrderType()
+        {
+            Console.WriteLine("Select order type:");
+            for(sbyte i = 0; i < OrderType.AllOrderTypes.Length; i++)
+                Console.WriteLine("[" + i + "] " + OrderType.AllOrderTypes[i]);
+            int index = Console.ReadKey().KeyChar - '0';
+            if (index >= 0 && index < OrderType.AllOrderTypes.Length)
+                return OrderType.AllOrderTypes[index];
+            Console.WriteLine("error: Index is out of bound. Exit.");
+            return null;
+        }
+
         private void SendOrder()
         {
             Account acc = SelectAccount();
+            if (acc == null) return;
+            if (acc.Password == null)
+            {
+                Console.Write("Account password is not set. Input the password: ");
+                string pwd = ReadPwd();
+                acc.Password = pwd;
+            }
+            string sExgCode = input("Input exg code: ");
+            string sJmCode = input("Input jm code: ");
+            string sOrdQty = input("Input ord qty: ");
+            string sOrderPrice = input("Input ord prc: ");
+            bool bTradeGb = input("Buy or sell? ([b]/s): ") == "s";
+            OrderType orderType = SelectOrderType();
+            if (orderType == null) return;
+            string sOrderNo = agent.SendBSOrderGB(acc, sExgCode, sJmCode, sOrdQty, sOrderPrice, bTradeGb, orderType);
+            Console.WriteLine("Order number is " + sOrderNo);
         }
 
         public Program()
@@ -148,16 +182,15 @@ namespace ChampionOpenAPI_CSharp
             if (!VersionCheck()) return;
             if (!Login()) return;
         cmd:
-            Console.WriteLine("vvvvvvvvvvvvvvvv");
-            Console.WriteLine("Input the digit of the following commands:");
-            Console.WriteLine("[0] exit the program");
-            Console.WriteLine("[1] print code list");
-            Console.WriteLine("[2] print chart");
-            Console.WriteLine("[3] print account info");
-            Console.WriteLine("[4] send order");
-            Console.WriteLine("^^^^^^^^^^^^^^^^");
-            Console.Write(">>> ");
-            string cmd = Console.ReadLine();
+Console.WriteLine(@"vvvvvvvvvvvvvvvv
+Input the digit of the following commands:
+[0] exit the program
+[1] print code list
+[2] print chart
+[3] print account info
+[4] send order
+^^^^^^^^^^^^^^^^");
+            string cmd = input(">>> ");
             switch (cmd)
             {
                 case "0":

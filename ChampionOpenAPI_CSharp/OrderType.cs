@@ -23,6 +23,15 @@ namespace ChampionOpenAPI_CSharp
             AlternativeName = alternativeName;
         }
 
+        public override string ToString()
+        {
+            if (AlternativeName == null)
+            {
+                return $"{DisplayName} {Code}";
+            }
+            return $"{DisplayName}({AlternativeName}) {Code}";
+        }
+
         public static readonly OrderType Manual = new OrderType("지정가", "010");
         public static readonly OrderType Market = new OrderType("시장가", "020");
         public static readonly OrderType MOO = new OrderType("MOO", "720", "장개시 시장가");
@@ -31,7 +40,10 @@ namespace ChampionOpenAPI_CSharp
         public static readonly OrderType LOC = new OrderType("LOC", "730", "장마감 지정가");
         public static readonly OrderType TWAP = new OrderType("TWAP", "750", "시간분할주문");
         public static readonly OrderType VWAP = new OrderType("VWAP", "760", "수량분할주문");
+        //---
+        //Do not swap up and down line. It will change initialization order and cause NullReferenceException!
+        //---
+        public static readonly OrderType[] AllOrderTypes = new OrderType[] { Manual, Market, MOO, MOC, LOO, LOC, TWAP, VWAP };
 
     }
-
 }

@@ -343,12 +343,12 @@ namespace ChampionOpenAPI_CSharp
         /// <param name="sExgCode">거래소코드</param>
         /// <param name="sJmCode">종목코드</param>
         /// <param name="sOrdQty">주문수량</param>
-        /// <param name="sOrdPrc">해외증권주문단가</param>
+        /// <param name="sOrderPrice">해외증권주문단가</param>
         /// <param name="bTradeGb">매매구분(false:매수, true:매도)</param>
         /// <param name="ordType">해외증권주문유형구분</param>
         /// <returns>주문번호</returns>
         public string SendBSOrderGB(Account account, string sExgCode, string sJmCode,
-            string sOrdQty, string sOrdPrc, bool bTradeGb, OrderType ordType)
+            string sOrdQty, string sOrderPrice, bool bTradeGb, OrderType ordType)
         {
             int nRqId = axChampionCommAgent1.CreateRequestID();
             int nRtn;
@@ -368,7 +368,7 @@ namespace ChampionOpenAPI_CSharp
             axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "EXG_COD", sExgCode);           //거래소코드
             axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "ITEM_COD", sJmCode);           //종목코드
             axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "ORD_Q", sOrdQty);              //주문수량
-            axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "FGST_ORD_UPR", sOrdPrc);       //해외증권주문단가
+            axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "FGST_ORD_UPR", sOrderPrice);       //해외증권주문단가
             axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "BUY_SEL_TR_TCD", bTradeGb?"20":"10");    //매매구분(10:매수, 20:매도)
             axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "FGST_BNS_TCD", ordType.Code);  //해외증권주문유형구분
             axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "ORD_COND_TCD", "0");           //주문조건구분("0" 으로 고정)
@@ -380,7 +380,7 @@ namespace ChampionOpenAPI_CSharp
                 throw new Exception();
             }
 
-            if (!m_gbday_are.WaitOne(0x3f3f3f3f))
+            if (!m_gbBSOrder_are.WaitOne(0x3f3f3f3f))
             {
                 throw new TimeoutException();
             }
