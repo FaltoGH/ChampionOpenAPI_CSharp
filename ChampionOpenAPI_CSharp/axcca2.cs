@@ -19,21 +19,20 @@ namespace ChampionOpenAPI_CSharp
 
     public class axcca2 : IDisposable
     {
+        private int g_nVersionCheck;
+        private bool m_bIsVersionChecked;
+
         private void WndProc(ref Message m)
         {
-            Console.WriteLine("message: " + m);
             if (m.Msg == 0x1cfe) // version check success
             {
-                int g_nVersionCheck;
                 if ((int)m.LParam == 1)
                     g_nVersionCheck = (int)m.WParam;
                 else
                     g_nVersionCheck = 0;
 
                 if (g_nVersionCheck > 0)
-                {
-                    __versionCheckValue.Set(g_nVersionCheck);
-                }
+                    m_bIsVersionChecked = true;
             }
         }
 
@@ -63,7 +62,6 @@ namespace ChampionOpenAPI_CSharp
         }
 
         private bool __b1421533;
-        private readonly Concurrent<int> __versionCheckValue = new Concurrent<int>();
         public void VersionCheck()
         {
             new Thread(() =>
@@ -92,7 +90,10 @@ namespace ChampionOpenAPI_CSharp
                 System.Windows.Forms.Application.Run();
             })
             { IsBackground = true, Name = "wndproct" }.Start();
-            __versionCheckValue.WaitWhile(x => x == 0);
+            while (!m_bIsVersionChecked)
+            {
+                Thread.Sleep(127);
+            }
         }
 
         private AxChampionCommAgent axChampionCommAgent1;
@@ -100,6 +101,8 @@ namespace ChampionOpenAPI_CSharp
         private string __loginedUserID;
         public int Login(string userID, string pwd, string certPwd)
         {
+            if (g_nVersionCheck <= 0 || !m_bIsVersionChecked)
+                throw new InvalidOperationException();
             using (AutoResetEvent are = new AutoResetEvent(false))
             {
                 Thread t = new Thread(() =>
@@ -117,7 +120,7 @@ namespace ChampionOpenAPI_CSharp
                 t.Start();
                 if (!are.WaitOne(0x3f3f3f3f)) { throw new TimeoutException(); }
             }
-            int ret = axChampionCommAgent1.CommLogin(__versionCheckValue.Get(), userID, pwd, certPwd);
+            int ret = axChampionCommAgent1.CommLogin(g_nVersionCheck, userID, pwd, certPwd);
             if (ret == 0)
             {
                 __loginedUserID = userID;
@@ -313,9 +316,15 @@ namespace ChampionOpenAPI_CSharp
             return ret;
         }
 
-        public string GetAccInfo()
+        private string[] __a325196;
+        public string[] GetAccNos()
         {
-            return axChampionCommAgent1.GetAccInfo();
+            if (__a325196 == null)
+            {
+                string accInfo = axChampionCommAgent1.GetAccInfo();
+                __a325196 = accInfo.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            }
+            return __a325196;
         }
 
         private const string g_sTrcode_gbBSOrder = "OTD6101U";    //해외주식 매수/매도 주문전송 TrCode

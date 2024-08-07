@@ -104,20 +104,42 @@ namespace ChampionOpenAPI_CSharp
 
         private void GetAccInfo()
         {
-            string accInfo = agent.GetAccInfo();
-            string[] accnos = accInfo.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] accnos = agent.GetAccNos();
             if (accnos.Length == 1)
-            {
                 Console.WriteLine("1 account found.");
-            }
             else
-            {
                 Console.WriteLine(accnos.Length + " accounts found.");
-            }
             foreach(var accno in accnos)
-            {
                 Console.WriteLine(accno);
+        }
+
+        private string SelectAccno()
+        {
+            string[] accnos = agent.GetAccNos();
+            if (accnos.Length == 0)
+            {
+                Console.WriteLine("error: You have no account to send order.");
+                return null;
             }
+            if (accnos.Length == 1)
+                return accnos[0];
+            Console.WriteLine("Select account.");
+            for (sbyte i = 0; i < accnos.Length; i++)
+                Console.WriteLine(i + ": " + accnos[i]);
+            int index;
+            unchecked
+            {
+                index = Console.ReadKey().KeyChar - '0';
+            }
+            if (index >= 0 && index < accnos.Length)
+                return accnos[index];
+            Console.WriteLine("error: Index is out of bound. Exit.");
+            return null;
+        }
+
+        private void SendOrder()
+        {
+            string accno = SelectAccno();
         }
 
         public Program()
@@ -132,6 +154,7 @@ namespace ChampionOpenAPI_CSharp
             Console.WriteLine("1: print code list");
             Console.WriteLine("2: print chart");
             Console.WriteLine("3: print account info");
+            Console.WriteLine("4: send order");
             Console.WriteLine("^^^^^^^^^^^^^^^^");
             Console.Write(">>> ");
             string cmd = Console.ReadLine();
@@ -148,6 +171,9 @@ namespace ChampionOpenAPI_CSharp
                     break;
                 case "3":
                     GetAccInfo();
+                    break;
+                case "4":
+                    SendOrder();
                     break;
                 default:
                     if(!string.IsNullOrWhiteSpace(cmd))

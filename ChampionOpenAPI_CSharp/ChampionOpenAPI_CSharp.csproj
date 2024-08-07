@@ -66,7 +66,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="axcca2.cs" />
-    <Compile Include="Concurrent.cs" />
     <Compile Include="Data\OverseaStockInfo.cs" />
     <Compile Include="Form1.cs" />
     <Compile Include="gbday_struct.cs" />
