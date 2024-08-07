@@ -102,44 +102,44 @@ namespace ChampionOpenAPI_CSharp
             }
         }
 
-        private void GetAccInfo()
+        private void GetAccounts()
         {
-            string[] accnos = agent.GetAccNos();
-            if (accnos.Length == 1)
+            Account[] accs = agent.GetAccounts();
+            if (accs.Length == 1)
                 Console.WriteLine("1 account found.");
             else
-                Console.WriteLine(accnos.Length + " accounts found.");
-            foreach(var accno in accnos)
-                Console.WriteLine(accno);
+                Console.WriteLine(accs.Length + " accounts found.");
+            foreach(var acc in accs)
+                Console.WriteLine(acc.Number);
         }
 
-        private string SelectAccno()
+        private Account SelectAccount()
         {
-            string[] accnos = agent.GetAccNos();
-            if (accnos.Length == 0)
+            Account[] accs = agent.GetAccounts();
+            if (accs.Length == 0)
             {
                 Console.WriteLine("error: You have no account to send order.");
                 return null;
             }
-            if (accnos.Length == 1)
-                return accnos[0];
-            Console.WriteLine("Select account.");
-            for (sbyte i = 0; i < accnos.Length; i++)
-                Console.WriteLine(i + ": " + accnos[i]);
+            if (accs.Length == 1)
+                return accs[0];
+            Console.WriteLine("Select account:");
+            for (sbyte i = 0; i < accs.Length; i++)
+                Console.WriteLine("[" + i + "] " + accs[i]);
             int index;
             unchecked
             {
                 index = Console.ReadKey().KeyChar - '0';
             }
-            if (index >= 0 && index < accnos.Length)
-                return accnos[index];
+            if (index >= 0 && index < accs.Length)
+                return accs[index];
             Console.WriteLine("error: Index is out of bound. Exit.");
             return null;
         }
 
         private void SendOrder()
         {
-            string accno = SelectAccno();
+            Account acc = SelectAccount();
         }
 
         public Program()
@@ -150,11 +150,11 @@ namespace ChampionOpenAPI_CSharp
         cmd:
             Console.WriteLine("vvvvvvvvvvvvvvvv");
             Console.WriteLine("Input the digit of the following commands:");
-            Console.WriteLine("0: exit the program");
-            Console.WriteLine("1: print code list");
-            Console.WriteLine("2: print chart");
-            Console.WriteLine("3: print account info");
-            Console.WriteLine("4: send order");
+            Console.WriteLine("[0] exit the program");
+            Console.WriteLine("[1] print code list");
+            Console.WriteLine("[2] print chart");
+            Console.WriteLine("[3] print account info");
+            Console.WriteLine("[4] send order");
             Console.WriteLine("^^^^^^^^^^^^^^^^");
             Console.Write(">>> ");
             string cmd = Console.ReadLine();
@@ -170,7 +170,7 @@ namespace ChampionOpenAPI_CSharp
                     PrintChart();
                     break;
                 case "3":
-                    GetAccInfo();
+                    GetAccounts();
                     break;
                 case "4":
                     SendOrder();

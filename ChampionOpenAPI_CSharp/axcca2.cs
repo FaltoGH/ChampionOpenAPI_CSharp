@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,6 +20,21 @@ namespace ChampionOpenAPI_CSharp
 
     public class axcca2 : IDisposable
     {
+        private delegate void WndProcDelegate(ref Message m);
+        private class RelayWndProcForm : Form
+        {
+            private readonly WndProcDelegate __wndProc;
+            public RelayWndProcForm(WndProcDelegate wndProc)
+            {
+                __wndProc = wndProc;
+            }
+            protected override void WndProc(ref Message m)
+            {
+                __wndProc?.Invoke(ref m);
+                base.WndProc(ref m);
+            }
+        }
+
         private int g_nVersionCheck;
         private bool m_bIsVersionChecked;
 
@@ -67,20 +83,16 @@ namespace ChampionOpenAPI_CSharp
             new Thread(() =>
             {
                 if (__b1421533)
-                {
                     throw new InvalidOperationException();
-                }
                 string path = GetApiAgentModulePath();
                 Directory.SetCurrentDirectory(path);
                 String sRunPath = Path.Combine(path, "ChampionOpenAPIVersionProcess.exe");
                 ProcessStartInfo startInfo = new ProcessStartInfo();
                 startInfo.FileName = sRunPath;
-                relaywp form = new relaywp(WndProc);
+                RelayWndProcForm form = new RelayWndProcForm(WndProc);
                 IntPtr handle = form.Handle;
                 if (handle.ToInt32() <= 0)
-                {
                     throw new ArgumentOutOfRangeException();
-                }
                 string arguments = "/" + handle;
                 startInfo.Arguments = arguments;
                 startInfo.UseShellExecute = true;
@@ -91,14 +103,12 @@ namespace ChampionOpenAPI_CSharp
             })
             { IsBackground = true, Name = "wndproct" }.Start();
             while (!m_bIsVersionChecked)
-            {
                 Thread.Sleep(127);
-            }
         }
 
         private AxChampionCommAgent axChampionCommAgent1;
-        private bool __isLoginSuccess;
-        private string __loginedUserID;
+        private bool m_bIsLoginSuccess;
+        private string m_sLoginedUserID;
         public int Login(string userID, string pwd, string certPwd)
         {
             if (g_nVersionCheck <= 0 || !m_bIsVersionChecked)
@@ -118,13 +128,13 @@ namespace ChampionOpenAPI_CSharp
                 { IsBackground = true, Name = "axt" };
                 t.SetApartmentState(ApartmentState.STA);
                 t.Start();
-                if (!are.WaitOne(0x3f3f3f3f)) { throw new TimeoutException(); }
+                if (!are.WaitOne(0x3f3f3f3f)) throw new TimeoutException();
             }
             int ret = axChampionCommAgent1.CommLogin(g_nVersionCheck, userID, pwd, certPwd);
             if (ret == 0)
             {
-                __loginedUserID = userID;
-                __isLoginSuccess = true;
+                m_sLoginedUserID = userID;
+                m_bIsLoginSuccess = true;
             }
             return ret;
         }
@@ -141,9 +151,7 @@ namespace ChampionOpenAPI_CSharp
             {
                 __s3519352 = Path.Combine(GetApiAgentModulePath(), "mst", "gbcode.cod");
                 if (!File.Exists(__s3519352))
-                {
                     throw new FileNotFoundException();
-                }
             }
             return __s3519352;
         }
@@ -172,10 +180,8 @@ namespace ChampionOpenAPI_CSharp
         {
             if (axChampionCommAgent1 != null)
             {
-                if (__isLoginSuccess)
-                {
-                    axChampionCommAgent1?.CommLogout(__loginedUserID);
-                }
+                if (m_bIsLoginSuccess)
+                    axChampionCommAgent1?.CommLogout(m_sLoginedUserID);
                 axChampionCommAgent1?.AllUnRegisterReal();
                 try
                 {
@@ -316,13 +322,14 @@ namespace ChampionOpenAPI_CSharp
             return ret;
         }
 
-        private string[] __a325196;
-        public string[] GetAccNos()
+        private Account[] __a325196;
+        public Account[] GetAccounts()
         {
             if (__a325196 == null)
             {
                 string accInfo = axChampionCommAgent1.GetAccInfo();
-                __a325196 = accInfo.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] accNos = accInfo.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                __a325196 = Array.ConvertAll(accNos, x => new Account(x));
             }
             return __a325196;
         }
@@ -332,8 +339,7 @@ namespace ChampionOpenAPI_CSharp
         /// <summary>
         /// 해외주식 매수/매도 주문 전송(OTD6101U)
         /// </summary>
-        /// <param name="sAccNo">계좌번호</param>
-        /// <param name="sAccPwd">계좌비밀번호</param>
+        /// <param name="account">계좌</param>
         /// <param name="sExgCode">거래소코드</param>
         /// <param name="sJmCode">종목코드</param>
         /// <param name="sOrdQty">주문수량</param>
@@ -341,20 +347,19 @@ namespace ChampionOpenAPI_CSharp
         /// <param name="bTradeGb">매매구분(false:매수, true:매도)</param>
         /// <param name="ordType">해외증권주문유형구분</param>
         /// <returns>주문번호</returns>
-        public string SendBSOrderGB(string sAccNo,
-            string sAccPwd, string sExgCode, string sJmCode,
+        public string SendBSOrderGB(Account account, string sExgCode, string sJmCode,
             string sOrdQty, string sOrdPrc, bool bTradeGb, OrderType ordType)
         {
             int nRqId = axChampionCommAgent1.CreateRequestID();
             int nRtn;
 
-            nRtn = axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "ACNO", sAccNo);       //계좌번호
+            nRtn = axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "ACNO", account.Number);       //계좌번호
             if (nRtn < 1) //계좌번호 입력 에러
             {
                 throw new Exception();
             }
 
-            nRtn = axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "AC_PWD", sAccPwd);    //계좌비밀번호
+            nRtn = axChampionCommAgent1.SetTranInputData(nRqId, g_sTrcode_gbBSOrder, "InRec1", "AC_PWD", account.Password);    //계좌비밀번호
             if (nRtn < 1) //계좌 비밀번호 에러
             {
                 throw new Exception();
