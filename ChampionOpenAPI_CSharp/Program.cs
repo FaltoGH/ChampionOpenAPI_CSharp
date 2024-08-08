@@ -181,8 +181,9 @@ namespace ChampionOpenAPI_CSharp
             agent = new axcca2();
             if (!VersionCheck()) return;
             if (!Login()) return;
-        cmd:
-Console.WriteLine(@"vvvvvvvvvvvvvvvv
+            while (true)
+            {
+                Console.WriteLine(@"vvvvvvvvvvvvvvvv
 Input the digit of the following commands:
 [0] exit the program
 [1] print code list
@@ -190,30 +191,29 @@ Input the digit of the following commands:
 [3] print account info
 [4] send order
 ^^^^^^^^^^^^^^^^");
-            string cmd = input(">>> ");
-            switch (cmd)
-            {
-                case "0":
-                    agent.Dispose();
-                    return;
-                case "1":
-                    PrintCodeList();
-                    break;
-                case "2":
-                    PrintChart();
-                    break;
-                case "3":
-                    GetAccounts();
-                    break;
-                case "4":
-                    SendOrder();
-                    break;
-                default:
-                    if(!string.IsNullOrWhiteSpace(cmd))
+                char cmd = Console.ReadKey(true).KeyChar;
+                switch (cmd)
+                {
+                    case '0':
+                        agent.Dispose();
+                        return;
+                    case '1':
+                        PrintCodeList();
+                        break;
+                    case '2':
+                        PrintChart();
+                        break;
+                    case '3':
+                        GetAccounts();
+                        break;
+                    case '4':
+                        SendOrder();
+                        break;
+                    default:
                         Console.WriteLine("Unknown command.");
-                    break;
+                        break;
+                }
             }
-            goto cmd;
         }
 
         private static void Main(string[] args)
